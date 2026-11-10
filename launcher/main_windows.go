@@ -25,6 +25,24 @@ func message(text string) {
 	syscall.NewLazyDLL("user32.dll").NewProc("MessageBoxW").Call(0, uintptr(unsafe.Pointer(body)), uintptr(unsafe.Pointer(title)), 0x10)
 }
 
+// Yes keeps both locations; No lets the player select both again.
+func chooseSavedLocations(cfg Config) (bool, error) {
+	title, _ := syscall.UTF16PtrFromString("Survival Reimagined - installatiemappen")
+	body, _ := syscall.UTF16PtrFromString("Opgeslagen locaties gebruiken?\n\nMW3: " + cfg.GameDir + "\nPlutonium: " + cfg.PlutoDir + "\n\nJa: starten met deze locaties\nNee: beide mappen opnieuw kiezen\nAnnuleren: stoppen zonder wijzigingen")
+	owner, _, _ := syscall.NewLazyDLL("kernel32.dll").NewProc("GetConsoleWindow").Call()
+	result, _, err := syscall.NewLazyDLL("user32.dll").NewProc("MessageBoxW").Call(owner, uintptr(unsafe.Pointer(body)), uintptr(unsafe.Pointer(title)), 0x23)
+	switch result {
+	case 6:
+		return false, nil
+	case 7:
+		return true, nil
+	case 2:
+		return false, fmt.Errorf("Geannuleerd; installatiemappen blijven ongewijzigd")
+	default:
+		return false, fmt.Errorf("Locatiekeuze openen mislukt: %v", err)
+	}
+}
+
 // Native Windows folder chooser: no PowerShell subprocess or encoded scripts.
 func pickFolder(title string) (string, error) {
 	log.Println(title)
@@ -81,7 +99,15 @@ func run() error {
 	} else if !os.IsNotExist(err) {
 		return err
 	}
-	if !gameValid(cfg.GameDir) {
+	reselect := false
+	if cfg.GameDir != "" {
+		var err error
+		reselect, err = chooseSavedLocations(cfg)
+		if err != nil {
+			return err
+		}
+	}
+	if reselect || !gameValid(cfg.GameDir) {
 		folder, err := pickFolder("Kies je MW3-map met main en zone/english")
 		if err != nil {
 			return err
@@ -92,7 +118,7 @@ func run() error {
 		cfg.GameDir = folder
 	}
 	bootstrap := filepath.Join(cfg.PlutoDir, "bin", "plutonium-bootstrapper-win32.exe")
-	if !fileExists(bootstrap) {
+	if reselect || !fileExists(bootstrap) {
 		folder, err := pickFolder("Kies je Plutonium-map met de submap bin")
 		if err != nil {
 			return err
@@ -134,7 +160,7 @@ func main() {
 	// Folder dialogs use COM and must run on one OS thread.
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
-	fmt.Println("Survival Reimagined Launcher v0.1.1 - diagnosevenster")
+	fmt.Println("Survival Reimagined Launcher v0.1.2 - diagnosevenster")
 	log.SetOutput(os.Stdout)
 	local := os.Getenv("LOCALAPPDATA")
 	if local != "" {
