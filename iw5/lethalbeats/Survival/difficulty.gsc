@@ -50,8 +50,8 @@ _difficulty_get_bot_profile_easy()
 	settings = [];
 
 	settings[SKILL_AIM_TIME] = 0.45;
-	settings[SKILL_INIT_REACT_TIME] = 0.35;
-	settings[SKILL_REACTION_TIME] = 0.35;
+	settings[SKILL_INIT_REACT_TIME] = 0.25;
+	settings[SKILL_REACTION_TIME] = 0.25;
 	settings[SKILL_REMEMBER_TIME] = undefined;
 	settings[SKILL_NO_TRACE_ADS_TIME] = 0.50;
 	settings[SKILL_NO_TRACE_LOOK_TIME] = 0.50;
@@ -61,7 +61,7 @@ _difficulty_get_bot_profile_easy()
 	settings[SKILL_SHOOT_AFTER_TIME] = 1.00;
 	settings[SKILL_AIM_OFFSET_TIME] = 1.80;
 	settings[SKILL_AIM_OFFSET_AMOUNT] = 5.00;
-	settings[SKILL_BONE_UPDATE_INTERVAL] = 0.4;
+	settings[SKILL_BONE_UPDATE_INTERVAL] = 0.25;
 
 	settings[BEHAVIOR_STRAFE] = 25;
 	settings[BEHAVIOR_NADE] = 15;
@@ -90,8 +90,8 @@ _difficulty_get_bot_profile_normal()
 	settings = [];
 
 	settings[SKILL_AIM_TIME] = 0.28;
-	settings[SKILL_INIT_REACT_TIME] = 0.15;
-	settings[SKILL_REACTION_TIME] = 0.12;
+	settings[SKILL_INIT_REACT_TIME] = 0.12;
+	settings[SKILL_REACTION_TIME] = 0.10;
 	settings[SKILL_REMEMBER_TIME] = undefined;
 	settings[SKILL_NO_TRACE_ADS_TIME] = 1.00;
 	settings[SKILL_NO_TRACE_LOOK_TIME] = 1.50;
@@ -101,7 +101,7 @@ _difficulty_get_bot_profile_normal()
 	settings[SKILL_SHOOT_AFTER_TIME] = 0.80;
 	settings[SKILL_AIM_OFFSET_TIME] = 1.20;
 	settings[SKILL_AIM_OFFSET_AMOUNT] = 3.20;
-	settings[SKILL_BONE_UPDATE_INTERVAL] = 0.25;
+	settings[SKILL_BONE_UPDATE_INTERVAL] = 0.15;
 
 	settings[BEHAVIOR_STRAFE] = 50;
 	settings[BEHAVIOR_NADE] = 35;

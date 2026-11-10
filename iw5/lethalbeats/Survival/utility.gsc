@@ -1552,6 +1552,21 @@ survivor_wave_init()
 	self survivor_init_wave_summary();
 }
 
+
+survivor_zoom_cleanup(camera)
+{
+	// The camera thread can end on death; always remove its entity and view state.
+	self lethalbeats\utility::waittill_any("death", "disconnect", "survival_zoom_finished");
+	if (isDefined(camera)) camera delete();
+	if (!isDefined(self)) return;
+	self cameraUnlink();
+	self visionSetNakedForPlayer("", 0);
+	self allowAds(1);
+	self freezeControls(0);
+	self survivor_hud_notify_hide(false);
+	self setClientDvar("hide_hud", false);
+}
+
 /*
 ///DocStringBegin
 detail: <Player> survivor_zoom_effect(): <Void>
@@ -1560,6 +1575,9 @@ summary: Plays a cinematic camera "zoom down" effect for the player, typically a
 */
 survivor_zoom_effect()
 {
+	if (!getDvarInt("survival_intro_camera")) return;
+	self endon("disconnect");
+	self endon("death");
 	self setClientDvar("hide_hud", true);
 	self survivor_hud_notify_hide(true);
 	self allowAds(0);
@@ -1567,10 +1585,11 @@ survivor_zoom_effect()
 	
 	angles = self GetPlayerAngles();	
 	camera = spawn("script_model", self.origin + (0, 0, 3000));
-	camera setModel("c130_zoomrig");
+	// An invisible origin avoids rendering the cinematic aircraft rig in the map.
+	camera setModel("tag_origin");
 	camera notSolid(0);
 	camera hide();
-	camera showToPlayer(self);
+	self thread survivor_zoom_cleanup(camera);
 	camera.angles = (90, angles[1], 0);
 	
 	self cameraLinkTo(camera, "tag_origin");	
@@ -1589,7 +1608,7 @@ survivor_zoom_effect()
 	self survivor_hud_notify_hide(false);
 	self setClientDvar("hide_hud", false);
 	
-	camera delete();
+	self notify("survival_zoom_finished");
 }
 
 /*
