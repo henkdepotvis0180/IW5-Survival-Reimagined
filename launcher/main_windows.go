@@ -1,17 +1,18 @@
 package main
 
 import (
+	"bufio"
 	_ "embed"
-	"encoding/base64"
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
+	"runtime"
 	"syscall"
-	"unicode/utf16"
+	"time"
 	"unsafe"
 )
 
@@ -24,27 +25,44 @@ func message(text string) {
 	syscall.NewLazyDLL("user32.dll").NewProc("MessageBoxW").Call(0, uintptr(unsafe.Pointer(body)), uintptr(unsafe.Pointer(title)), 0x10)
 }
 
+// Native Windows folder chooser: no PowerShell subprocess or encoded scripts.
 func pickFolder(title string) (string, error) {
-	// Windows PowerShell and WinForms ship with supported Windows installations.
-	// Fixed titles only; no user-controlled content is interpolated into this script.
-	script := `Add-Type -AssemblyName System.Windows.Forms; $d=New-Object System.Windows.Forms.FolderBrowserDialog; $d.Description='` + title + `'; $d.ShowNewFolderButton=$false; if($d.ShowDialog() -eq 'OK'){[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; [Console]::Write($d.SelectedPath)}`
-	units := utf16.Encode([]rune(script))
-	b := make([]byte, len(units)*2)
-	for i, u := range units {
-		binary.LittleEndian.PutUint16(b[i*2:], u)
+	log.Println(title)
+	ole := syscall.NewLazyDLL("ole32.dll")
+	hr, _, _ := ole.NewProc("OleInitialize").Call(0)
+	if int32(hr) < 0 {
+		return "", fmt.Errorf("Windows-mapkeuze initialiseren mislukt (HRESULT 0x%x)", hr)
 	}
-	ps := filepath.Join(os.Getenv("SystemRoot"), "System32", "WindowsPowerShell", "v1.0", "powershell.exe")
-	cmd := exec.Command(ps, "-NoProfile", "-STA", "-EncodedCommand", base64.StdEncoding.EncodeToString(b))
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	out, err := cmd.Output()
+	defer ole.NewProc("OleUninitialize").Call()
+	shell := syscall.NewLazyDLL("shell32.dll")
+	type browseInfo struct {
+		owner       uintptr
+		root        uintptr
+		displayName *uint16
+		title       *uint16
+		flags       uint32
+		callback    uintptr
+		param       uintptr
+		image       int32
+	}
+	caption, err := syscall.UTF16PtrFromString(title)
 	if err != nil {
-		return "", fmt.Errorf("Mapkeuze mislukt: %w", err)
+		return "", err
 	}
-	path := strings.TrimPrefix(strings.TrimSpace(string(out)), "\ufeff")
-	if path == "" {
-		return "", fmt.Errorf("Geannuleerd; er is niets gestart")
+	var display [260]uint16
+	owner, _, _ := syscall.NewLazyDLL("kernel32.dll").NewProc("GetConsoleWindow").Call()
+	info := browseInfo{owner: owner, displayName: &display[0], title: caption, flags: 0x41}
+	item, _, _ := shell.NewProc("SHBrowseForFolderW").Call(uintptr(unsafe.Pointer(&info)))
+	if item == 0 {
+		return "", fmt.Errorf("Mapkeuze geannuleerd; er is niets gestart")
 	}
-	return path, nil
+	defer ole.NewProc("CoTaskMemFree").Call(item)
+	var path [260]uint16
+	ok, _, _ := shell.NewProc("SHGetPathFromIDListW").Call(item, uintptr(unsafe.Pointer(&path[0])))
+	if ok == 0 {
+		return "", fmt.Errorf("Kies een gewone lokale map")
+	}
+	return syscall.UTF16ToString(path[:]), nil
 }
 
 func run() error {
@@ -53,6 +71,7 @@ func run() error {
 		return fmt.Errorf("LOCALAPPDATA ontbreekt")
 	}
 	state := filepath.Join(local, "SurvivalReimagined")
+	log.Println("Instellingen controleren...")
 	cfgPath := filepath.Join(state, "launcher.json")
 	cfg := Config{PlutoDir: filepath.Join(local, "Plutonium"), Map: "mp_dome"}
 	if data, err := os.ReadFile(cfgPath); err == nil {
@@ -88,35 +107,61 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	log.Println("MW3-map:", cfg.GameDir)
+	log.Println("Plutonium:", cfg.PlutoDir)
 	if err = saveConfig(cfgPath, cfg); err != nil {
 		return err
 	}
-	_, err = install(payload, filepath.Join(cfg.PlutoDir, "storage", "iw5"), filepath.Join(state, "backups"))
+	log.Println("Modbestanden controleren en backups maken...")
+	count, err := install(payload, filepath.Join(cfg.PlutoDir, "storage", "iw5"), filepath.Join(state, "backups"))
 	if err != nil {
 		return err
 	}
-	log := filepath.Join(state, "last-launch.log")
-	if err = os.MkdirAll(state, 0755); err != nil {
-		return err
-	}
-	f, err := os.OpenFile(log, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	fmt.Fprintln(f, "Starting Survival Reimagined in LAN mode on", cfg.Map)
+	log.Printf("%d modbestanden bijgewerkt. Plutonium starten op %s (LAN)...", count, cfg.Map)
 	cmd := exec.Command(bootstrap, args...)
 	cmd.Dir = cfg.PlutoDir
-	cmd.Stdout = f
-	cmd.Stderr = f
+	cmd.Stdout = log.Writer()
+	cmd.Stderr = log.Writer()
+	started := time.Now()
 	if err = cmd.Run(); err != nil {
-		return fmt.Errorf("Plutonium is gestopt met een fout: %w. Zie %s", err, log)
+		return fmt.Errorf("Plutonium is gestopt met een fout: %w. Zie %s", err, filepath.Join(state, "last-launch.log"))
 	}
+	log.Printf("Plutonium-bootstrapper afgesloten na %s (exitcode 0). Als er geen game verscheen, deel dit logbestand.", time.Since(started).Round(time.Second))
 	return nil
 }
 
 func main() {
+	// Folder dialogs use COM and must run on one OS thread.
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+	fmt.Println("Survival Reimagined Launcher v0.1.1 - diagnosevenster")
+	log.SetOutput(os.Stdout)
+	local := os.Getenv("LOCALAPPDATA")
+	if local != "" {
+		state := filepath.Join(local, "SurvivalReimagined")
+		if err := os.MkdirAll(state, 0755); err == nil {
+			file, err := os.OpenFile(filepath.Join(state, "last-launch.log"), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+			if err == nil {
+				defer file.Close()
+				log.SetOutput(io.MultiWriter(os.Stdout, file))
+			} else {
+				log.Println("Logbestand openen mislukt:", err)
+			}
+		} else {
+			log.Println("Logmap maken mislukt:", err)
+		}
+	}
+	defer func() {
+		if value := recover(); value != nil {
+			log.Printf("Onverwachte fout: %v", value)
+			message(fmt.Sprint(value))
+		}
+		fmt.Println("Druk op Enter om dit venster te sluiten.")
+		bufio.NewReader(os.Stdin).ReadString('\n')
+	}()
+	log.Println("Launcher gestart. Sluit bestaande MW3-sessies voordat je verdergaat.")
 	if err := run(); err != nil {
+		log.Println("FOUT:", err)
 		message(err.Error())
 	}
 }

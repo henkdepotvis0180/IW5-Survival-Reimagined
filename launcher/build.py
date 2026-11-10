@@ -24,6 +24,6 @@ out = root / "dist"
 out.mkdir(exist_ok=True)
 env = dict(os.environ, GOOS="windows", GOARCH="amd64", CGO_ENABLED="0")
 exe = out / "SurvivalReimagined.exe"
-subprocess.run([go, "build", "-trimpath", "-ldflags=-H=windowsgui -s -w", "-o", str(exe), "."], cwd=root, env=env, check=True)
+subprocess.run([go, "build", "-trimpath", "-ldflags=-s -w", "-o", str(exe), "."], cwd=root, env=env, check=True)
 (out / "SHA256SUMS.txt").write_text(hashlib.sha256(exe.read_bytes()).hexdigest() + "  " + exe.name + "\n")
 print(exe)

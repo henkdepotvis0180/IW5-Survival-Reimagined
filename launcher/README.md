@@ -35,7 +35,11 @@ onder je Plutonium `storage\iw5` en verwijder de `.HASH.bak`-suffix.
 Nieuw geïnstalleerde bestanden hebben geen eerdere versie; die moet je voor
 volledig verwijderen zelf verwijderen. De launcher verwijdert geen andere mods.
 
-Foutmeldingen verschijnen in een venster. Uitvoer van Plutonium staat in
+Versie 0.1.1 toont direct een diagnosevenster dat openblijft tot je op Enter drukt.
+De mapkeuze gebruikt een gewoon Windows-venster, zonder PowerShell.
+Alle stappen en fouten worden vanaf het opstarten gelogd; ook wanneer de
+mapkeuze of installatie mislukt. Foutmeldingen verschijnen ook in een venster.
+Uitvoer van Plutonium staat in
 `%LOCALAPPDATA%\SurvivalReimagined\last-launch.log`.
 
 ## Bouwen en testen
@@ -48,7 +52,11 @@ backups, herhaalbaarheid, padbeveiliging, instellingen en startargumenten.
 De Windows-executable is in Linux cross-gecompileerd; de Windows-mapkeuze en
 het daadwerkelijk starten/laden van Plutonium zijn hier niet getest.
 De wijzigingen aan GSC en de meegeleverde fastfiles zijn niet opnieuw in-game
-gevalideerd. Als jouw Plutonium-versie command-line mod/mapselectie anders
+gevalideerd. Als zelfs het diagnosevenster en logbestand niet verschijnen, controleer dan
+of de ZIP is uitgepakt en of Windows-beveiliging het bestand heeft geblokkeerd.
+Schakel beveiligingssoftware niet uit; raadpleeg de precieze melding.
+
+Als jouw Plutonium-versie command-line mod/mapselectie anders
 afhandelt, moet de startprocedure na een echte Windows-test worden aangepast.
 
 Startpatroon gebaseerd op de IW5 serverdocumentatie en scripts:
