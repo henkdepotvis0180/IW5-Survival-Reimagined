@@ -7,7 +7,9 @@ Geen herstel van de gesloten launcher van de oorspronkelijke ontwikkelaar.
 
 1. Installeer MW3 met de Engelse gamebestanden en installeer/update Plutonium
    via de officiële launcher. Start Plutonium eerst eenmaal normaal.
-2. Open `SurvivalReimagined.exe`. Kies de eerste keer je MW3-map met `main`
+2. Open `SurvivalReimagined.exe`. Werkt dubbelklikken op de executable niet,
+   dubbelklik dan op de meegeleverde `Start-Survival.cmd`; die opent de launcher
+   vanuit zijn eigen map, net als handmatig `cd` gebruiken. Kies de eerste keer je MW3-map met `main`
    en `zone/english`. Plutonium wordt standaard gevonden in
    `%LOCALAPPDATA%\Plutonium`; zo nodig verschijnt ook daarvoor een mapkeuze.
 3. Bij volgende starts verschijnt een venster met je opgeslagen locaties.
@@ -39,7 +41,10 @@ onder je Plutonium `storage\iw5` en verwijder de `.HASH.bak`-suffix.
 Nieuw geïnstalleerde bestanden hebben geen eerdere versie; die moet je voor
 volledig verwijderen zelf verwijderen. De launcher verwijdert geen andere mods.
 
-Versie 0.1.2 toont direct een diagnosevenster dat openblijft tot je op Enter drukt.
+Versie 0.1.3 toont direct een diagnosevenster dat openblijft tot je op Enter drukt.
+De launcher stelt bij elke start zijn eigen map in als werkmap, zodat een
+start via een snelkoppeling of dubbelklik dezelfde launcherwerkmap gebruikt als
+starten na `cd` naar die map. Plutonium zelf gebruikt zijn eigen installatiemap.
 De mapkeuze gebruikt een gewoon Windows-venster, zonder PowerShell.
 Alle stappen en fouten worden vanaf het opstarten gelogd; ook wanneer de
 mapkeuze of installatie mislukt. Foutmeldingen verschijnen ook in een venster.

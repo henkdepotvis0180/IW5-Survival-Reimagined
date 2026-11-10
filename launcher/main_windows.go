@@ -160,7 +160,7 @@ func main() {
 	// Folder dialogs use COM and must run on one OS thread.
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
-	fmt.Println("Survival Reimagined Launcher v0.1.2 - diagnosevenster")
+	fmt.Println("Survival Reimagined Launcher v0.1.3 - diagnosevenster")
 	log.SetOutput(os.Stdout)
 	local := os.Getenv("LOCALAPPDATA")
 	if local != "" {
@@ -185,6 +185,20 @@ func main() {
 		fmt.Println("Druk op Enter om dit venster te sluiten.")
 		bufio.NewReader(os.Stdin).ReadString('\n')
 	}()
+	// Explorer, shortcuts and terminals may provide different working directories.
+	// Match starting the executable after cd into its own directory.
+	executable, err := os.Executable()
+	if err != nil {
+		log.Println("FOUT: locatie van de launcher bepalen:", err)
+		message(err.Error())
+		return
+	}
+	if err = os.Chdir(filepath.Dir(executable)); err != nil {
+		log.Println("FOUT: werkmap instellen:", err)
+		message(err.Error())
+		return
+	}
+	log.Println("Werkmap launcher:", filepath.Dir(executable))
 	log.Println("Launcher gestart. Sluit bestaande MW3-sessies voordat je verdergaat.")
 	if err := run(); err != nil {
 		log.Println("FOUT:", err)
