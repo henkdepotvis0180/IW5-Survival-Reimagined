@@ -268,7 +268,7 @@ func launch(cfg Config, state string, post func(uiEvent)) error {
 	return nil
 }
 
-func windowProc(hwnd uintptr, msg uint32, wparam uintptr, lparam unsafe.Pointer) uintptr {
+func windowProc(hwnd uintptr, msg uint32, wparam, lparam uintptr) uintptr {
 	a := application
 	switch msg {
 	case 0xF:
@@ -316,7 +316,7 @@ func windowProc(hwnd uintptr, msg uint32, wparam uintptr, lparam unsafe.Pointer)
 		user32.NewProc("PostQuitMessage").Call(0)
 		return 0
 	}
-	result, _, _ := user32.NewProc("DefWindowProcW").Call(hwnd, uintptr(msg), wparam, uintptr(lparam))
+	result, _, _ := user32.NewProc("DefWindowProcW").Call(hwnd, uintptr(msg), wparam, lparam)
 	return result
 }
 

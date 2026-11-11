@@ -158,14 +158,18 @@ func drawScene(dc uintptr, client rect) {
 		text(dc, "ACTIEF", rect{840, 566, 960, 588}, colorGreen, theme.small, 2)
 	}
 }
-func drawThemedButton(pointer unsafe.Pointer) {
+func drawThemedButton(pointer uintptr) {
 	type drawItem struct {
 		controlType, id, itemID, action, state uint32
 		hwnd, dc                               uintptr
 		bounds                                 rect
 		data                                   uintptr
 	}
-	item := (*drawItem)(pointer)
+	// LPARAM is numeric for many other messages. Keep the callback argument
+	// an integer, and copy this OS-owned DRAWITEMSTRUCT into typed Go memory.
+	var record drawItem
+	syscall.NewLazyDLL("ntdll.dll").NewProc("RtlMoveMemory").Call(uintptr(unsafe.Pointer(&record)), pointer, unsafe.Sizeof(record))
+	item := &record
 	r := item.bounds
 	primary := item.id == idStart || item.id == idSave
 	selected := application != nil && ((item.id == idSettings && application.settings) || (item.id == idPlay && !application.settings))
