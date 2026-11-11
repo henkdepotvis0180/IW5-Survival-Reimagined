@@ -327,7 +327,7 @@ func runUI(state string) error {
 	if screenH > 510 {
 		y = (screenH - 510) / 2
 	}
-	hwnd, _, err := user32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.className)), uintptr(unsafe.Pointer(wide("Survival Reimagined Launcher 0.2.0 - testversie"))), 0x00CA0000, x, y, 736, 510, 0, 0, instance, 0)
+	hwnd, _, err := user32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.className)), uintptr(unsafe.Pointer(wide("Survival Reimagined Launcher 0.2.1 - testversie"))), 0x00CA0000, x, y, 736, 510, 0, 0, instance, 0)
 	if hwnd == 0 {
 		return fmt.Errorf("Venster openen mislukt: %v", err)
 	}
@@ -387,7 +387,7 @@ func main() {
 	}
 	defer file.Close()
 	log.SetOutput(file)
-	log.Println("Launcher 0.2.0 gestart")
+	log.Println("Launcher 0.2.1 gestart")
 	if err = runUI(state); err != nil {
 		log.Println("FOUT:", err)
 		message(0, err.Error())

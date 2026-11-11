@@ -1,15 +1,17 @@
-# Survival Reimagined Launcher 0.2.0
+# Survival Reimagined Launcher 0.2.1
 
 Een gewone Windows-app met een eigen venster. Geen commandobestand, terminal,
-PowerShell of afzonderlijke runtime nodig. De ingebouwde mod is dezelfde als in
-0.1.3; deze wijziging betreft de bediening van de launcher.
+PowerShell of afzonderlijke runtime nodig. Versie 0.2.1 bevat ook een apart resourcearchief met de originele ontbrekende
+`lb_box_png`-afbeelding. Start Survival installeert dit automatisch naast
+`mod.iwd`; je hoeft het losse herstelpakket dan niet uit te pakken.
+Dit herstelt de aangetoonde ontbrekende afbeelding, niet bewezen alle laadproblemen.
 
 ## Status en beveiliging
 
 Experimentele, niet digitaal ondertekende Windows 10/11-app (64-bit).
 Defender detecteerde een eerdere download als `Trojan:Script/Wacatac.B!ml`.
 Deze nieuwe interface is geen oplossing of vrijgave voor die detectie. Er is
-geen Defender-scan of Microsoft-beoordeling van 0.2.0 uitgevoerd. Voeg geen
+geen Defender-scan of Microsoft-beoordeling van 0.2.1 uitgevoerd. Voeg geen
 uitzondering toe als je beveiliging het pakket blokkeert.
 
 ## Gebruiken
@@ -56,13 +58,13 @@ Log: `%LOCALAPPDATA%\SurvivalReimagined\last-launch.log`.
 ## Bouwen en valideren
 
 Vanuit deze map: `python3 build.py`, met Python 3 en Go >= 1.23.
-Dit voert de vijf bestaande installatietests uit, bouwt de Windows-executable
- en maakt `dist/SurvivalReimagined-Windows-v0.2.0.zip` met checksums en instructies.
+Dit voert de zes installatietests uit, bouwt de Windows-executable
+ en maakt `dist/SurvivalReimagined-Windows-v0.2.1.zip` met checksums en instructies.
 Geen externe Go-modules. Het programma heeft Windows' GUI-subsystem en gebruikt
 standaard Win32-controls; debug-symbolen worden niet gestript. VCS-buildmetadata
 wordt weggelaten voor reproduceerbare builds tussen schone checkouts.
 
-Gecontroleerd in Linux: bestaande tests, Windows cross-compilatie, Windows
+Gecontroleerd in Linux: zes tests (inclusief installatie van de originele herstelafbeelding), Windows cross-compilatie, Windows
 `go vet`, GUI-subsystem en ZIP-integriteit. Niet getest: werkelijk tekenen en
 bedienen van het venster, Windows-mapkeuze, Plutonium-start en gameplay. Hiervoor
 ontbreken hier Windows/Wine en MW3. Een geslaagde build is geen antivirusvrijgave.
