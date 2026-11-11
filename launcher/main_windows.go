@@ -73,6 +73,8 @@ const (
 	idSave        = 103
 	idStart       = 104
 	idLog         = 105
+	idPlay        = 106
+	idSettings    = 107
 	wmUpdate      = 0x8001
 )
 
@@ -84,6 +86,8 @@ type uiEvent struct {
 type launcherUI struct {
 	hwnd, game, pluto, mapName, test, status uintptr
 	controls                                 []uintptr
+	playControls, settingControls            []uintptr
+	settings                                 bool
 	state                                    string
 	busy                                     bool
 	events                                   chan uiEvent
@@ -94,32 +98,40 @@ func (a *launcherUI) control(class, text string, style uint32, x, y, w, h int32,
 	if handle == 0 {
 		panic("Windows-control maken mislukt")
 	}
-	font, _, _ := syscall.NewLazyDLL("gdi32.dll").NewProc("GetStockObject").Call(17)
+	font := theme.body
 	sendMessage.Call(handle, 0x30, font, 1)
 	return handle
 }
 
 func (a *launcherUI) initControls(cfg Config) {
-	a.control("STATIC", "SURVIVAL REIMAGINED", 0, 24, 20, 650, 24, 0)
-	a.control("STATIC", "Kies je bestaande installaties en start een Survival-match in LAN-modus.", 0, 24, 50, 650, 22, 0)
-	a.control("STATIC", "MW3-installatiemap", 0, 24, 90, 650, 20, 0)
-	a.game = a.control("EDIT", cfg.GameDir, 0x00810080, 24, 114, 540, 28, 0)
-	gameBrowse := a.control("BUTTON", "Bladeren...", 0x10000, 576, 114, 112, 28, idGameBrowse)
-	a.control("STATIC", "Plutonium-map (met de submap bin)", 0, 24, 156, 650, 20, 0)
-	a.pluto = a.control("EDIT", cfg.PlutoDir, 0x00810080, 24, 180, 540, 28, 0)
-	plutoBrowse := a.control("BUTTON", "Bladeren...", 0x10000, 576, 180, 112, 28, idPlutoBrowse)
-	a.control("STATIC", "Startmap", 0, 24, 224, 120, 20, 0)
-	a.mapName = a.control("EDIT", cfg.Map, 0x00810080, 24, 248, 200, 28, 0)
-	a.test = a.control("BUTTON", "Host-testmenu met geld inschakelen", 0x10003, 246, 248, 442, 28, 0)
+	play := a.control("BUTTON", "01   SPELEN", 0x1000B, 24, 180, 184, 48, idPlay)
+	settings := a.control("BUTTON", "02   INSTELLINGEN", 0x1000B, 24, 238, 184, 48, idSettings)
+	a.control("BUTTON", "LOG BEKIJKEN", 0x1000B, 24, 556, 184, 40, idLog)
+	start := a.control("BUTTON", "START SURVIVAL   >", 0x1000B, 280, 456, 440, 64, idStart)
+	a.playControls = []uintptr{start}
+	label := func(text string, y int32) {
+		h := a.control("STATIC", text, 0, 280, y, 680, 22, 0)
+		a.settingControls = append(a.settingControls, h)
+	}
+	label("MW3-INSTALLATIEMAP", 140)
+	a.game = a.control("EDIT", cfg.GameDir, 0x00810080, 280, 168, 548, 32, 0)
+	gameBrowse := a.control("BUTTON", "BLADEREN", 0x1000B, 844, 168, 116, 32, idGameBrowse)
+	label("PLUTONIUM-MAP", 224)
+	a.pluto = a.control("EDIT", cfg.PlutoDir, 0x00810080, 280, 252, 548, 32, 0)
+	plutoBrowse := a.control("BUTTON", "BLADEREN", 0x1000B, 844, 252, 116, 32, idPlutoBrowse)
+	label("STARTMAP", 308)
+	a.mapName = a.control("EDIT", cfg.Map, 0x00810080, 280, 336, 240, 32, 0)
+	a.test = a.control("BUTTON", "Host-testmenu met geld inschakelen", 0x10003, 280, 406, 680, 32, 0)
+	syscall.NewLazyDLL("uxtheme.dll").NewProc("SetWindowTheme").Call(a.test, uintptr(unsafe.Pointer(wide(""))), uintptr(unsafe.Pointer(wide(""))))
 	if cfg.TestMenu {
 		sendMessage.Call(a.test, 0xF1, 1, 0)
 	}
-	a.control("STATIC", "De mod wordt bijgewerkt in Plutonium-storage. Vervangen bestanden krijgen een backup.\r\nSluit de game voordat je start. Deze testversie is niet digitaal ondertekend.", 0, 24, 296, 664, 44, 0)
-	save := a.control("BUTTON", "Instellingen opslaan", 0x10000, 24, 354, 172, 34, idSave)
-	start := a.control("BUTTON", "Start Survival", 0x10001, 208, 354, 172, 34, idStart)
-	a.control("BUTTON", "Log bekijken", 0x10000, 516, 354, 172, 34, idLog)
-	a.status = a.control("STATIC", "Gereed. Je kunt de installatiemappen hier altijd wijzigen.", 0, 24, 408, 664, 42, 0)
-	a.controls = []uintptr{a.game, a.pluto, a.mapName, a.test, gameBrowse, plutoBrowse, save, start}
+	save := a.control("BUTTON", "INSTELLINGEN OPSLAAN", 0x1000B, 280, 472, 320, 48, idSave)
+	hint := a.control("STATIC", "Vervangen modbestanden krijgen automatisch een backup.\r\nSluit de game voordat je de installatie bijwerkt.", 0, 280, 526, 680, 36, 0)
+	a.settingControls = append(a.settingControls, a.game, a.pluto, a.mapName, a.test, gameBrowse, plutoBrowse, save, hint)
+	a.status = a.control("STATIC", "Gereed om te starten.", 0, 280, 610, 680, 42, 0)
+	a.controls = []uintptr{a.game, a.pluto, a.mapName, a.test, gameBrowse, plutoBrowse, save, start, play, settings}
+	a.showSettings(cfg.GameDir == "")
 }
 
 func windowText(hwnd uintptr) string {
@@ -144,6 +156,7 @@ func (a *launcherUI) config() (Config, error) {
 
 func (a *launcherUI) statusText(text string) {
 	setText.Call(a.status, uintptr(unsafe.Pointer(wide(text))))
+	user32.NewProc("InvalidateRect").Call(a.hwnd, 0, 0)
 }
 func (a *launcherUI) enable(enabled bool) {
 	value := uintptr(0)
@@ -160,6 +173,12 @@ func (a *launcherUI) post(event uiEvent) {
 }
 
 func (a *launcherUI) command(id uintptr) {
+	if id == idPlay || id == idSettings {
+		if !a.busy {
+			a.showSettings(id == idSettings)
+		}
+		return
+	}
 	if id == idLog {
 		file := filepath.Join(a.state, "last-launch.log")
 		notepad := filepath.Join(os.Getenv("SystemRoot"), "System32", "notepad.exe")
@@ -193,6 +212,7 @@ func (a *launcherUI) command(id uintptr) {
 	}
 	cfg, err := a.config()
 	if err != nil {
+		a.showSettings(true)
 		message(a.hwnd, err.Error())
 		return
 	}
@@ -202,6 +222,7 @@ func (a *launcherUI) command(id uintptr) {
 	}
 	if id == idSave {
 		a.statusText("Instellingen opgeslagen.")
+		a.showSettings(false)
 		return
 	}
 	a.busy = true
@@ -247,9 +268,21 @@ func launch(cfg Config, state string, post func(uiEvent)) error {
 	return nil
 }
 
-func windowProc(hwnd uintptr, msg uint32, wparam, lparam uintptr) uintptr {
+func windowProc(hwnd uintptr, msg uint32, wparam uintptr, lparam unsafe.Pointer) uintptr {
 	a := application
 	switch msg {
+	case 0xF:
+		paintTheme(hwnd)
+		return 0
+	case 0x14:
+		return 1
+	case 0x2B:
+		drawThemedButton(lparam)
+		return 1
+	case 0x133, 0x135, 0x138:
+		gdi.NewProc("SetTextColor").Call(wparam, uintptr(colorText))
+		gdi.NewProc("SetBkColor").Call(wparam, uintptr(colorPanel))
+		return theme.panelBrush
 	case 0x111:
 		if a != nil {
 			a.command(wparam & 0xffff)
@@ -283,11 +316,13 @@ func windowProc(hwnd uintptr, msg uint32, wparam, lparam uintptr) uintptr {
 		user32.NewProc("PostQuitMessage").Call(0)
 		return 0
 	}
-	result, _, _ := user32.NewProc("DefWindowProcW").Call(hwnd, uintptr(msg), wparam, lparam)
+	result, _, _ := user32.NewProc("DefWindowProcW").Call(hwnd, uintptr(msg), wparam, uintptr(lparam))
 	return result
 }
 
 func runUI(state string) error {
+	initTheme()
+	defer closeTheme()
 	cfg := Config{PlutoDir: filepath.Join(os.Getenv("LOCALAPPDATA"), "Plutonium"), Map: "mp_dome"}
 	if data, err := os.ReadFile(filepath.Join(state, "launcher.json")); err == nil {
 		var saved Config
@@ -312,7 +347,7 @@ func runUI(state string) error {
 		menuName, className                *uint16
 		smallIcon                          uintptr
 	}
-	class := windowClass{callback: syscall.NewCallback(windowProc), instance: instance, icon: icon, cursor: cursor, background: 16, className: wide("SurvivalReimaginedLauncher"), smallIcon: icon}
+	class := windowClass{callback: syscall.NewCallback(windowProc), instance: instance, icon: icon, cursor: cursor, background: theme.backgroundBrush, className: wide("SurvivalReimaginedLauncher"), smallIcon: icon}
 	class.size = uint32(unsafe.Sizeof(class))
 	atom, _, err := user32.NewProc("RegisterClassExW").Call(uintptr(unsafe.Pointer(&class)))
 	if atom == 0 {
@@ -321,17 +356,19 @@ func runUI(state string) error {
 	screenW, _, _ := user32.NewProc("GetSystemMetrics").Call(0)
 	screenH, _, _ := user32.NewProc("GetSystemMetrics").Call(1)
 	x, y := uintptr(0), uintptr(0)
-	if screenW > 736 {
-		x = (screenW - 736) / 2
+	if screenW > 1040 {
+		x = (screenW - 1040) / 2
 	}
-	if screenH > 510 {
-		y = (screenH - 510) / 2
+	if screenH > 720 {
+		y = (screenH - 720) / 2
 	}
-	hwnd, _, err := user32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.className)), uintptr(unsafe.Pointer(wide("Survival Reimagined Launcher 0.3.0 - testversie"))), 0x00CA0000, x, y, 736, 510, 0, 0, instance, 0)
+	hwnd, _, err := user32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.className)), uintptr(unsafe.Pointer(wide("Survival Reimagined Launcher 0.4.0 - testversie"))), 0x02CA0000, x, y, 1040, 720, 0, 0, instance, 0)
 	if hwnd == 0 {
 		return fmt.Errorf("Venster openen mislukt: %v", err)
 	}
 	app.hwnd = hwnd
+	dark := int32(1)
+	syscall.NewLazyDLL("dwmapi.dll").NewProc("DwmSetWindowAttribute").Call(hwnd, 20, uintptr(unsafe.Pointer(&dark)), 4)
 	app.initControls(cfg)
 	user32.NewProc("ShowWindow").Call(hwnd, 1)
 	user32.NewProc("UpdateWindow").Call(hwnd)
@@ -387,7 +424,7 @@ func main() {
 	}
 	defer file.Close()
 	log.SetOutput(file)
-	log.Println("Launcher 0.3.0 gestart")
+	log.Println("Launcher 0.4.0 gestart")
 	if err = runUI(state); err != nil {
 		log.Println("FOUT:", err)
 		message(0, err.Error())

@@ -5,22 +5,39 @@ on:
     paths:
       - .github/workflows/publish-complete-launcher.yml
       - launcher/join_complete.py
-      - downloads/complete-v0.3.0/**
+      - downloads/complete-v0.4.0/**
 permissions:
   contents: write
 jobs:
+  windows-smoke:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Assemble and verify Windows build
+        run: python launcher/join_complete.py "$env:RUNNER_TEMP"
+      - name: Open launcher, test pages and capture real UI
+        run: ./launcher/test-theme.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: theme-screenshots
+          path: ${{ runner.temp }}/launcher-v0.4.0-*.png
   publish:
+    needs: windows-smoke
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Verify and assemble complete package
         run: python3 launcher/join_complete.py "$RUNNER_TEMP"
+      - uses: actions/download-artifact@v4
+        with:
+          name: theme-screenshots
+          path: ${{ runner.temp }}
       - name: Publish versioned complete launcher
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          tag=survival-launcher-v0.3.0
-          gh release create "$tag" --target "$GITHUB_SHA" --draft --prerelease --title "Survival Reimagined Launcher v0.3.0 — compleet pakket" --notes "Een ZIP met de Windows-launcher, volledige oorspronkelijke modresources, bibliotheken en aangepaste scripts. Uitpakken, exe openen, installatiemappen controleren en Start Survival. Vervangen bestanden krijgen backups. Inclusief lb_box_png en preview_mp_dlc. Statisch gecontroleerd en getest; Windows/gameplay en Defender zijn nog niet gevalideerd. Geen scannerblokkades omzeilen."
-          gh release upload "$tag" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.3.0.zip" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.3.0.sha256"
+          tag=survival-launcher-v0.4.0
+          gh release create "$tag" --target "$GITHUB_SHA" --draft --prerelease --title "Survival Reimagined Launcher v0.4.0 — Operations UI" --notes "Een complete ZIP met een donkere military Operations UI, aparte instellingen, tactische illustratie en volledige modresources. Windows-venster, paginawissel en afsluiten worden getest op een Windows-runner; screenshots staan bij deze release. Uitpakken, exe openen, installatiemappen controleren en Start Survival. Vervangen bestanden krijgen backups. Inclusief lb_box_png en preview_mp_dlc. Statisch gecontroleerd en getest; Game-start en gameplay zijn niet op deze runner getest. Geen scannerblokkades omzeilen."
+          gh release upload "$tag" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.4.0.zip" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.4.0.sha256" "$RUNNER_TEMP"/launcher-v0.4.0-*.png
           gh release edit "$tag" --draft=false --prerelease

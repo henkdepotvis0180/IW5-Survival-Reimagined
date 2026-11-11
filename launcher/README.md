@@ -1,4 +1,11 @@
-# Complete launcher v0.3.0
+# Survival Reimagined Launcher v0.4.0 — Operations UI
+
+Donkere, game-geïnspireerde vormgeving met olijfgroene accenten en originele
+vectorillustratie van een tactische kaart. SPELEN toont de startknop en startmap;
+INSTELLINGEN bevat de installatiemappen en host-testoptie. LOG BEKIJKEN opent het
+bestaande log. De volledige modresources en back-uplogica uit v0.3.0 blijven gelijk.
+Alle UI-tekst en illustraties worden lokaal getekend: geen webview, netwerkassets,
+externe lettertypen of aanvullende runtime vereist.
 
 Eén ZIP: pak uit en open SurvivalReimagined.exe. Controleer de installatiemappen
 en klik Start Survival. De launcher installeert de volledige officiële resources,
@@ -63,16 +70,17 @@ Log: `%LOCALAPPDATA%\SurvivalReimagined\last-launch.log`.
 ## Bouwen en valideren
 
 Vanuit deze map: `python3 build.py`, met Python 3 en Go >= 1.23.
-Dit voert de zes installatietests uit, bouwt de Windows-executable
- en maakt `dist/SurvivalReimagined-Windows-v0.3.0.zip` met checksums en instructies.
+Dit voert de zeven installatietests uit, bouwt de Windows-executable
+ en maakt `dist/SurvivalReimagined-Windows-v0.4.0.zip` met checksums en instructies.
 Geen externe Go-modules. Het programma heeft Windows' GUI-subsystem en gebruikt
 standaard Win32-controls; debug-symbolen worden niet gestript. VCS-buildmetadata
 wordt weggelaten voor reproduceerbare builds tussen schone checkouts.
 
-Gecontroleerd in Linux: zes tests (inclusief installatie van de originele herstelafbeelding), Windows cross-compilatie, Windows
-`go vet`, GUI-subsystem en ZIP-integriteit. Niet getest: werkelijk tekenen en
-bedienen van het venster, Windows-mapkeuze, Plutonium-start en gameplay. Hiervoor
-ontbreken hier Windows/Wine en MW3. Een geslaagde build is geen antivirusvrijgave.
+Gecontroleerd in Linux: zeven tests, Windows cross-compilatie, Windows `go vet`,
+GUI-subsystem en ZIP-integriteit. De release-workflow start de echte executable
+op Windows, controleert de speel- en instellingenpagina en het sluiten van de
+app, en maakt screenshots. Publiceren gebeurt pas na deze Windows-smoketest.
+Windows-mapkeuze, Plutonium-start en gameplay vallen buiten deze smoketest.
 
 Windows-handmatige controle: wijzig beide mappen, annuleer Bladeren zonder
 veldinformatie te verliezen, sla op en heropen, controleer ongeldige paden en
