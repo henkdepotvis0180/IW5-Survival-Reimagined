@@ -1,18 +1,23 @@
-# Survival Reimagined Launcher 0.2.1
+# Complete launcher v0.3.0
 
-Een gewone Windows-app met een eigen venster. Geen commandobestand, terminal,
-PowerShell of afzonderlijke runtime nodig. Versie 0.2.1 bevat ook een apart resourcearchief met de originele ontbrekende
-`lb_box_png`-afbeelding. Start Survival installeert dit automatisch naast
-`mod.iwd`; je hoeft het losse herstelpakket dan niet uit te pakken.
-Dit herstelt de aangetoonde ontbrekende afbeelding, niet bewezen alle laadproblemen.
+Eén ZIP: pak uit en open SurvivalReimagined.exe. Controleer de installatiemappen
+en klik Start Survival. De launcher installeert de volledige officiële resources,
+bijbehorende bibliotheken en de aangepaste scripts. Losse herstelpakketten zijn
+niet nodig. Bestaande bestanden worden eerst geback-upt. Er wordt nu expliciet
+load_dsr survival meegegeven voordat de map wordt gestart.
 
-## Status en beveiliging
+Deze versie vervangt ook afwijkende bestaande modresources door de gecontroleerde
+volledige officiële baseline. De fastfiles in mods/survival en zone worden gelijk
+gehouden. Maak bij voorkeur vooraf een backup van je volledige storage/iw5.
+Er worden geen MW3-gamebestanden vervangen.
 
-Experimentele, niet digitaal ondertekende Windows 10/11-app (64-bit).
-Defender detecteerde een eerdere download als `Trojan:Script/Wacatac.B!ml`.
-Deze nieuwe interface is geen oplossing of vrijgave voor die detectie. Er is
-geen Defender-scan of Microsoft-beoordeling van 0.2.1 uitgevoerd. Voeg geen
-uitzondering toe als je beveiliging het pakket blokkeert.
+Dit pakket is gebouwd en statisch gecontroleerd, niet op Windows/in-game getest.
+De eerdere Defender-melding is niet als foutief bevestigd; omzeil geen blokkade.
+
+Bouwen: Python 3 en Go >=1.23. Pak de originele officiële v4.0.1-release uit;
+IW5_OFFICIAL_DIR moet wijzen naar die uitgepakte map. Run python3 launcher/build.py.
+Elke baselinefile wordt gecontroleerd tegen launcher/official-files.json.
+Bron: https://github.com/LastDemon99/IW5-Survival-Reimagined/releases/tag/iw5-mp-survival-v4.0.1
 
 ## Gebruiken
 
@@ -59,7 +64,7 @@ Log: `%LOCALAPPDATA%\SurvivalReimagined\last-launch.log`.
 
 Vanuit deze map: `python3 build.py`, met Python 3 en Go >= 1.23.
 Dit voert de zes installatietests uit, bouwt de Windows-executable
- en maakt `dist/SurvivalReimagined-Windows-v0.2.1.zip` met checksums en instructies.
+ en maakt `dist/SurvivalReimagined-Windows-v0.3.0.zip` met checksums en instructies.
 Geen externe Go-modules. Het programma heeft Windows' GUI-subsystem en gebruikt
 standaard Win32-controls; debug-symbolen worden niet gestript. VCS-buildmetadata
 wordt weggelaten voor reproduceerbare builds tussen schone checkouts.

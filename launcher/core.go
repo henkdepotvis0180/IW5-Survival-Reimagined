@@ -64,7 +64,7 @@ func launchArgs(cfg Config) ([]string, error) {
 	if cfg.TestMenu {
 		test = "1"
 	}
-	return []string{"iw5mp", cfg.GameDir, "-lan", "+set", "fs_game", "mods/survival", "+set", "survival_test_menu", test, "+set", "g_gametype", "survival", "+map", cfg.Map}, nil
+	return []string{"iw5mp", cfg.GameDir, "-lan", "+set", "fs_game", "mods/survival", "+set", "survival_test_menu", test, "+load_dsr", "survival", "+map", cfg.Map}, nil
 }
 
 // Reject traversal and symlinked destination paths before touching any files.

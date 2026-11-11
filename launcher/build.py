@@ -8,17 +8,24 @@ import zipfile
 root = Path(__file__).resolve().parent
 repo = root.parent
 go = os.environ.get("GO", "go")
+# Build a coherent full official resource baseline; loose project scripts remain.
+import json
+baseline = Path(os.environ["IW5_OFFICIAL_DIR"])
+expected = json.loads((root / "official-files.json").read_text())
+files = {"iw5/" + p.relative_to(repo / "iw5").as_posix(): p
+         for p in (repo / "iw5").rglob("*") if p.is_file() and not p.is_symlink()}
+for name, checksum in expected.items():
+    path = baseline / name
+    if hashlib.sha256(path.read_bytes()).hexdigest() != checksum:
+        raise RuntimeError(f"Official baseline mismatch: {name}")
+    files["iw5/" + name] = path
+    if name.startswith("mods/survival/") and name.endswith(".ff"):
+        files["iw5/zone/" + path.name] = path
 with zipfile.ZipFile(root / "payload.zip", "w", zipfile.ZIP_DEFLATED) as archive:
-    for path in sorted((repo / "iw5").rglob("*")):
-        if path.is_file():
-            if path.is_symlink():
-                raise RuntimeError(f"Unexpected symlink: {path}")
-            # Ignore the original author's local test script, if present.
-            if path.relative_to(repo).as_posix() == "iw5/lethalbeats/Survival/dev/test.gsc":
-                continue
-            info = zipfile.ZipInfo(path.relative_to(repo).as_posix(), (2026, 1, 1, 0, 0, 0))
-            info.compress_type = zipfile.ZIP_DEFLATED
-            archive.writestr(info, path.read_bytes())
+    for name, path in sorted(files.items()):
+        info = zipfile.ZipInfo(name, (2026, 1, 1, 0, 0, 0))
+        info.compress_type = zipfile.ZIP_DEFLATED
+        archive.writestr(info, path.read_bytes())
 subprocess.run([go, "test", "./..."], cwd=root, check=True)
 out = root / "dist"
 out.mkdir(exist_ok=True)
@@ -27,7 +34,7 @@ exe = out / "SurvivalReimagined.exe"
 subprocess.run([go, "build", "-trimpath", "-buildvcs=false", "-ldflags=-H=windowsgui", "-o", str(exe), "."], cwd=root, env=env, check=True)
 (out / "SHA256SUMS.txt").write_text(hashlib.sha256(exe.read_bytes()).hexdigest() + "  " + exe.name + "\n")
 print(exe)
-package = out / "SurvivalReimagined-Windows-v0.2.1.zip"
+package = out / "SurvivalReimagined-Windows-v0.3.0.zip"
 with zipfile.ZipFile(package, "w", zipfile.ZIP_DEFLATED) as archive:
     for source, name in [
         (exe, exe.name),

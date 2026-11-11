@@ -1,0 +1,13 @@
+{
+  "LB_BotActor.iwd": "2bf9ad7c0fd46af344ec25f0c19c88b97cc7c5fa7f80bfb5c2acd0813d8d311b",
+  "LB_ServerControl.iwd": "6131186f20db38ce1ba7f45faa529feb2e91b40c2983165e286cdda175897d57",
+  "LB_Survival.iwd": "8973f16dbbe5799709a4ce351b63695074f83310acd595f3f66a1b49996bf187",
+  "LB_Utility.iwd": "bd7acd30353cd7b07cf8a5b0fac9a95dc817c791fa810c6af3604f1bd73992d1",
+  "mods/survival/localized_code_post_gfx_mp.ff": "c48432911fdcc3712c7a9cd223598a42055b7c2890f81f722d46e9a5c26cb972",
+  "mods/survival/localized_ui_mp.ff": "0f30b47f440c9cea7816a74c792e0d286cdb57314a9a105e22998baa0d0c253e",
+  "mods/survival/mod.iwd": "a75d5009eced00683f2d6eceef17178bbac67376c3ebeb5ea852dd447bbaf389",
+  "mods/survival/patch_mp.ff": "c6c10a9f13b59c7b29500d568e8e3d6ae941f843e95f4a7f4b71042bc80767ba",
+  "mods/survival/plutonium_code_post_gfx_mp.ff": "041e6348c0d0b73e5986a322b11493b0e6f9967887370c86a93d20fe1aa08f02",
+  "mods/survival/plutonium_patch_mp.ff": "f39f49f1c4eaac466701a9cea52e7314ffe448c50b7c22975fc85d8ff0886257",
+  "mods/survival_unload/mod.iwd": "68b926f289b1c8acf595841a8d75f07f89fa0c79c7dca83522c74c67629c175f"
+}

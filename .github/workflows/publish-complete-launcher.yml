@@ -1,0 +1,26 @@
+name: Publish complete Survival launcher
+on:
+  push:
+    branches: [feature/survival-launcher]
+    paths:
+      - .github/workflows/publish-complete-launcher.yml
+      - launcher/join_complete.py
+      - downloads/complete-v0.3.0/**
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify and assemble complete package
+        run: python3 launcher/join_complete.py "$RUNNER_TEMP"
+      - name: Publish versioned complete launcher
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag=survival-launcher-v0.3.0
+          gh release create "$tag" --target "$GITHUB_SHA" --draft --prerelease --title "Survival Reimagined Launcher v0.3.0 — compleet pakket" --notes "Een ZIP met de Windows-launcher, volledige oorspronkelijke modresources, bibliotheken en aangepaste scripts. Uitpakken, exe openen, installatiemappen controleren en Start Survival. Vervangen bestanden krijgen backups. Inclusief lb_box_png en preview_mp_dlc. Statisch gecontroleerd en getest; Windows/gameplay en Defender zijn nog niet gevalideerd. Geen scannerblokkades omzeilen."
+          gh release upload "$tag" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.3.0.zip" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.3.0.sha256"
+          gh release edit "$tag" --draft=false --prerelease
