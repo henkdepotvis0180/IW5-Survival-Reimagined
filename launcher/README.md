@@ -1,74 +1,76 @@
-# Survival Reimagined Launcher
+# Survival Reimagined Launcher 0.2.0
 
-Eigen launcher voor Windows 10/11 (64-bit), met de huidige modbestanden ingebouwd.
-Geen herstel van de gesloten launcher van de oorspronkelijke ontwikkelaar.
+Een gewone Windows-app met een eigen venster. Geen commandobestand, terminal,
+PowerShell of afzonderlijke runtime nodig. De ingebouwde mod is dezelfde als in
+0.1.3; deze wijziging betreft de bediening van de launcher.
+
+## Status en beveiliging
+
+Experimentele, niet digitaal ondertekende Windows 10/11-app (64-bit).
+Defender detecteerde een eerdere download als `Trojan:Script/Wacatac.B!ml`.
+Deze nieuwe interface is geen oplossing of vrijgave voor die detectie. Er is
+geen Defender-scan of Microsoft-beoordeling van 0.2.0 uitgevoerd. Voeg geen
+uitzondering toe als je beveiliging het pakket blokkeert.
 
 ## Gebruiken
 
-1. Installeer MW3 met de Engelse gamebestanden en installeer/update Plutonium
-   via de officiële launcher. Start Plutonium eerst eenmaal normaal.
-2. Open `SurvivalReimagined.exe`. Werkt dubbelklikken op de executable niet,
-   dubbelklik dan op de meegeleverde `Start-Survival.cmd`; die opent de launcher
-   vanuit zijn eigen map, net als handmatig `cd` gebruiken. Kies de eerste keer je MW3-map met `main`
-   en `zone/english`. Plutonium wordt standaard gevonden in
-   `%LOCALAPPDATA%\Plutonium`; zo nodig verschijnt ook daarvoor een mapkeuze.
-3. Bij volgende starts verschijnt een venster met je opgeslagen locaties.
-   Kies **Ja** om die te gebruiken, **Nee** om beide installatiemappen opnieuw
-   te kiezen, of **Annuleren** om te stoppen. Nieuwe locaties worden pas opgeslagen
-   nadat beide mappen geldig zijn. De vorige installatie wordt niet verwijderd.
-   De launcher installeert alleen
-   gewijzigde ingebouwde modbestanden en start IW5 met Survival op `mp_dome`
-   in LAN-modus. Dit is geen openbare server of online accountlogin.
+1. Installeer/update Plutonium via de officiële launcher en start het eenmaal.
+   Je hebt ook een bestaande Engelse MW3-installatie nodig.
+2. Pak het ZIP-pakket uit en open `SurvivalReimagined.exe`.
+3. Klik bij **MW3-installatiemap** op **Bladeren** en kies de map met `main`
+   en `zone/english`.
+4. Controleer de **Plutonium-map**, standaard `%LOCALAPPDATA%\Plutonium`.
+   Je kunt die met **Bladeren** wijzigen; de map moet `bin` bevatten.
+5. Kies eventueel een andere startmap (standaard `mp_dome`). Het host-testmenu
+   is optioneel; zie `TESTING.md` voor de toetsen en beperkingen.
+6. **Instellingen opslaan** onthoudt de locaties zonder modbestanden te kopiëren.
+   **Start Survival** slaat de instellingen op, controleert/bijwerkt de mod en
+   start de bestaande Plutonium-bootstrapper in LAN-modus.
 
-Sluit de game voordat je deze launcher start. Installeer geen tweede mod tegelijk
-in dezelfde Plutonium-storage: deze mod gebruikt ook gedeelde scripts/zonebestanden.
-De launcher downloadt geen gamebestanden, runt niet als administrator, bewaart
-geen wachtwoorden en heeft geen aparte .NET- of Go-installatie nodig.
-Windows kan waarschuwen omdat deze eigen executable niet digitaal ondertekend is.
+Bij een volgende start staan de opgeslagen locaties in hetzelfde venster. Je
+kunt ze altijd weer wijzigen. Je hoeft niets in een opdrachtprompt te typen.
+Tijdens installeren en zolang Plutonium draait zijn wijzigingen geblokkeerd.
+Na afsluiten van Plutonium wordt de startknop weer beschikbaar.
 
-## Instellingen en herstel
+De status onderin toont de voortgang. Bij fouten verschijnt een melding.
+Met **Log bekijken** open je het logbestand in Windows Kladblok.
 
-Instellingen staan in `%LOCALAPPDATA%\SurvivalReimagined\launcher.json`.
-Wijzig `map` naar een geïnstalleerde map, bijvoorbeeld `mp_hardhat`.
-Zet `test_menu` op `true` voor het hostgeldmenu; zie `../TESTING.md` voor toetsen.
-Verwijder dit JSON-bestand om opnieuw je mappen te kiezen.
+## Je bestaande installatie
 
-Bestanden die de launcher vervangt worden eerst bewaard onder
-`%LOCALAPPDATA%\SurvivalReimagined\backups`, met hun oorspronkelijke relatieve
-pad en een SHA256-suffix. Bestaande backups worden behouden. Om een bestand te
-herstellen: sluit de game, kopieer de gewenste backup terug naar hetzelfde pad
-onder je Plutonium `storage\iw5` en verwijder de `.HASH.bak`-suffix.
-Nieuw geïnstalleerde bestanden hebben geen eerdere versie; die moet je voor
-volledig verwijderen zelf verwijderen. De launcher verwijdert geen andere mods.
+Maak eerst zelf een backup van je volledige Plutonium `storage\iw5`-map.
+De launcher wijzigt geen MW3-gamebestanden. Hij plaatst de modbestanden in
+`<Plutonium-map>\storage\iw5`; ook gedeelde scripts en zonebestanden kunnen
+worden vervangen. Identieke bestanden worden overgeslagen.
 
-Versie 0.1.3 toont direct een diagnosevenster dat openblijft tot je op Enter drukt.
-De launcher stelt bij elke start zijn eigen map in als werkmap, zodat een
-start via een snelkoppeling of dubbelklik dezelfde launcherwerkmap gebruikt als
-starten na `cd` naar die map. Plutonium zelf gebruikt zijn eigen installatiemap.
-De mapkeuze gebruikt een gewoon Windows-venster, zonder PowerShell.
-Alle stappen en fouten worden vanaf het opstarten gelogd; ook wanneer de
-mapkeuze of installatie mislukt. Foutmeldingen verschijnen ook in een venster.
-Uitvoer van Plutonium staat in
-`%LOCALAPPDATA%\SurvivalReimagined\last-launch.log`.
+Van vervangen bestanden wordt eerst een backup gemaakt onder
+`%LOCALAPPDATA%\SurvivalReimagined\backups`. Bestandsnamen bevatten een
+SHA256-suffix. Sluit de game voordat je bestanden herstelt; kopieer een backup
+naar het oorspronkelijke relatieve pad onder `storage\iw5` en verwijder de
+`.HASH.bak`-suffix. Nieuwe bestanden hebben geen eerdere versie om te herstellen.
+De launcher verwijdert geen andere bestanden en geen oude installatie wanneer
+je een andere map kiest. Start geen twee launchers tegelijk.
 
-## Bouwen en testen
+Instellingen: `%LOCALAPPDATA%\SurvivalReimagined\launcher.json`.
+Log: `%LOCALAPPDATA%\SurvivalReimagined\last-launch.log`.
 
-Met Python 3 en Go >= 1.23: `python3 build.py` vanuit deze map.
-Resultaat: `dist/SurvivalReimagined.exe` en `dist/SHA256SUMS.txt`.
-Er worden geen externe Go-modules gebruikt. De build test eerst installatie,
-backups, herhaalbaarheid, padbeveiliging, instellingen en startargumenten.
+## Bouwen en valideren
 
-De Windows-executable is in Linux cross-gecompileerd; de Windows-mapkeuze en
-het daadwerkelijk starten/laden van Plutonium zijn hier niet getest.
-De wijzigingen aan GSC en de meegeleverde fastfiles zijn niet opnieuw in-game
-gevalideerd. Als zelfs het diagnosevenster en logbestand niet verschijnen, controleer dan
-of de ZIP is uitgepakt en of Windows-beveiliging het bestand heeft geblokkeerd.
-Schakel beveiligingssoftware niet uit; raadpleeg de precieze melding.
+Vanuit deze map: `python3 build.py`, met Python 3 en Go >= 1.23.
+Dit voert de vijf bestaande installatietests uit, bouwt de Windows-executable
+ en maakt `dist/SurvivalReimagined-Windows-v0.2.0.zip` met checksums en instructies.
+Geen externe Go-modules. Het programma heeft Windows' GUI-subsystem en gebruikt
+standaard Win32-controls; debug-symbolen worden niet gestript. VCS-buildmetadata
+wordt weggelaten voor reproduceerbare builds tussen schone checkouts.
 
-Als jouw Plutonium-versie command-line mod/mapselectie anders
-afhandelt, moet de startprocedure na een echte Windows-test worden aangepast.
+Gecontroleerd in Linux: bestaande tests, Windows cross-compilatie, Windows
+`go vet`, GUI-subsystem en ZIP-integriteit. Niet getest: werkelijk tekenen en
+bedienen van het venster, Windows-mapkeuze, Plutonium-start en gameplay. Hiervoor
+ontbreken hier Windows/Wine en MW3. Een geslaagde build is geen antivirusvrijgave.
 
-Startpatroon gebaseerd op de IW5 serverdocumentatie en scripts:
+Windows-handmatige controle: wijzig beide mappen, annuleer Bladeren zonder
+veldinformatie te verliezen, sla op en heropen, controleer ongeldige paden en
+mapnamen, start een match, open het log en controleer herstel na een startfout.
+
+Startpatroon gebaseerd op:
 https://plutonium.pw/docs/server/iw5/setting-up-a-server/
 https://github.com/xerxes-at/IW5ServerConfig/blob/master/!start_mp_server.bat
-Dit bevestigt het bootstrapperpatroon, niet een uitgevoerde clienttest.
