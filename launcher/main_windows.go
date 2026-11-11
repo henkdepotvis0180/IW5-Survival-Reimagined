@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"syscall"
+	"time"
 	"unsafe"
 )
 
@@ -84,13 +85,13 @@ type uiEvent struct {
 	err  error
 }
 type launcherUI struct {
-	hwnd, game, pluto, mapName, test, status uintptr
-	controls                                 []uintptr
-	playControls, settingControls            []uintptr
-	settings                                 bool
-	state                                    string
-	busy                                     bool
-	events                                   chan uiEvent
+	hwnd, game, pluto, mapName, playerName, test, status uintptr
+	controls                                             []uintptr
+	playControls, settingControls                        []uintptr
+	settings                                             bool
+	state                                                string
+	busy                                                 bool
+	events                                               chan uiEvent
 }
 
 func (a *launcherUI) control(class, text string, style uint32, x, y, w, h int32, id uintptr) uintptr {
@@ -119,8 +120,12 @@ func (a *launcherUI) initControls(cfg Config) {
 	label("PLUTONIUM-MAP", 224)
 	a.pluto = a.control("EDIT", cfg.PlutoDir, 0x00810080, 280, 252, 548, 32, 0)
 	plutoBrowse := a.control("BUTTON", "BLADEREN", 0x1000B, 844, 252, 116, 32, idPlutoBrowse)
-	label("STARTMAP", 308)
+	mapLabel := a.control("STATIC", "STARTMAP", 0, 280, 308, 240, 22, 0)
+	nameLabel := a.control("STATIC", "SPELERNAAM (LAN)", 0, 560, 308, 400, 22, 0)
+	a.settingControls = append(a.settingControls, mapLabel, nameLabel)
 	a.mapName = a.control("EDIT", cfg.Map, 0x00810080, 280, 336, 240, 32, 0)
+	a.playerName = a.control("EDIT", cfg.PlayerName, 0x00810080, 560, 336, 400, 32, 108)
+	sendMessage.Call(a.playerName, 0xC5, 16, 0)
 	a.test = a.control("BUTTON", "Host-testmenu met geld inschakelen", 0x10003, 280, 406, 680, 32, 0)
 	syscall.NewLazyDLL("uxtheme.dll").NewProc("SetWindowTheme").Call(a.test, uintptr(unsafe.Pointer(wide(""))), uintptr(unsafe.Pointer(wide(""))))
 	if cfg.TestMenu {
@@ -128,9 +133,9 @@ func (a *launcherUI) initControls(cfg Config) {
 	}
 	save := a.control("BUTTON", "INSTELLINGEN OPSLAAN", 0x1000B, 280, 472, 320, 48, idSave)
 	hint := a.control("STATIC", "Vervangen modbestanden krijgen automatisch een backup.\r\nSluit de game voordat je de installatie bijwerkt.", 0, 280, 526, 680, 36, 0)
-	a.settingControls = append(a.settingControls, a.game, a.pluto, a.mapName, a.test, gameBrowse, plutoBrowse, save, hint)
+	a.settingControls = append(a.settingControls, a.game, a.pluto, a.mapName, a.playerName, a.test, gameBrowse, plutoBrowse, save, hint)
 	a.status = a.control("STATIC", "Gereed om te starten.", 0, 280, 610, 680, 42, 0)
-	a.controls = []uintptr{a.game, a.pluto, a.mapName, a.test, gameBrowse, plutoBrowse, save, start, play, settings}
+	a.controls = []uintptr{a.game, a.pluto, a.mapName, a.playerName, a.test, gameBrowse, plutoBrowse, save, start, play, settings}
 	a.showSettings(cfg.GameDir == "")
 }
 
@@ -143,7 +148,7 @@ func windowText(hwnd uintptr) string {
 
 func (a *launcherUI) config() (Config, error) {
 	checked, _, _ := sendMessage.Call(a.test, 0xF0, 0, 0)
-	cfg := Config{GameDir: windowText(a.game), PlutoDir: windowText(a.pluto), Map: windowText(a.mapName), TestMenu: checked == 1}
+	cfg := Config{GameDir: windowText(a.game), PlutoDir: windowText(a.pluto), Map: windowText(a.mapName), PlayerName: windowText(a.playerName), TestMenu: checked == 1}
 	if !gameValid(cfg.GameDir) {
 		return cfg, fmt.Errorf("Kies een geldige MW3-map met main/iw_00.iwd en zone/english")
 	}
@@ -257,12 +262,14 @@ func launch(cfg Config, state string, post func(uiEvent)) error {
 	cmd.Dir = cfg.PlutoDir
 	cmd.Stdout = log.Writer()
 	cmd.Stderr = log.Writer()
+	startedAt := time.Now()
 	if err = cmd.Start(); err != nil {
 		return fmt.Errorf("Plutonium starten mislukt: %w", err)
 	}
 	post(uiEvent{text: "Plutonium is gestart. Wacht tot de game opent; zie het log als er niets verschijnt."})
-	log.Println("Plutonium gestart op", cfg.Map, "in LAN-modus")
+	log.Printf("Plutonium gestart: PID=%d map=%s LAN-naam=%q", cmd.Process.Pid, cfg.Map, cfg.PlayerName)
 	if err = cmd.Wait(); err != nil {
+		log.Printf("Plutonium afgesloten: PID=%d exit=%d duur=%s", cmd.Process.Pid, cmd.ProcessState.ExitCode(), time.Since(startedAt).Round(time.Second))
 		return fmt.Errorf("Plutonium is gestopt met een fout: %w. Zie Log bekijken", err)
 	}
 	return nil
@@ -334,6 +341,9 @@ func runUI(state string) error {
 	} else if !os.IsNotExist(err) {
 		return err
 	}
+	if cfg.PlayerName == "" {
+		cfg.PlayerName = "Survivor"
+	}
 	app := &launcherUI{state: state, events: make(chan uiEvent, 8)}
 	application = app
 	instance, _, _ := kernel32.NewProc("GetModuleHandleW").Call(0)
@@ -362,7 +372,7 @@ func runUI(state string) error {
 	if screenH > 720 {
 		y = (screenH - 720) / 2
 	}
-	hwnd, _, err := user32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.className)), uintptr(unsafe.Pointer(wide("Survival Reimagined Launcher 0.4.1 - testversie"))), 0x02CA0000, x, y, 1040, 720, 0, 0, instance, 0)
+	hwnd, _, err := user32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.className)), uintptr(unsafe.Pointer(wide("Survival Reimagined Launcher 0.4.2 - testversie"))), 0x02CA0000, x, y, 1040, 720, 0, 0, instance, 0)
 	if hwnd == 0 {
 		return fmt.Errorf("Venster openen mislukt: %v", err)
 	}
@@ -424,7 +434,7 @@ func main() {
 	}
 	defer file.Close()
 	log.SetOutput(file)
-	log.Println("Launcher 0.4.1 gestart")
+	log.Println("Launcher 0.4.2 gestart")
 	if err = runUI(state); err != nil {
 		log.Println("FOUT:", err)
 		message(0, err.Error())

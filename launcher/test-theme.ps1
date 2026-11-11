@@ -8,12 +8,13 @@ public static class ThemeNative {
  [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out RECT r);
  [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
  [DllImport("user32.dll")] public static extern IntPtr GetDlgItem(IntPtr h, int id);
+ [DllImport("user32.dll", CharSet=CharSet.Unicode)] public static extern int GetWindowText(IntPtr h, System.Text.StringBuilder value, int size);
  [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
  public struct RECT { public int Left,Top,Right,Bottom; }
 }
 '@
 $folder = Join-Path $env:RUNNER_TEMP 'theme-test'
-Expand-Archive (Join-Path $env:RUNNER_TEMP 'SurvivalReimagined-Windows-v0.4.1.zip') $folder
+Expand-Archive (Join-Path $env:RUNNER_TEMP 'SurvivalReimagined-Windows-v0.4.2.zip') $folder
 $process = Start-Process (Join-Path $folder 'SurvivalReimagined.exe') -PassThru
 try {
  for ($i=0; $i -lt 20; $i++) {
@@ -41,12 +42,17 @@ try {
  [void][ThemeNative]::SendMessage($h,0x111,[IntPtr]106,[IntPtr]::Zero)
  Start-Sleep -Milliseconds 500
  if (![ThemeNative]::IsWindowVisible([ThemeNative]::GetDlgItem($h,104))) { throw 'Start button hidden on play page' }
- Capture 'launcher-v0.4.1-spelen.png'
+ Capture 'launcher-v0.4.2-spelen.png'
  [void][ThemeNative]::SendMessage($h,0x111,[IntPtr]107,[IntPtr]::Zero)
  Start-Sleep -Milliseconds 500
  if (![ThemeNative]::IsWindowVisible([ThemeNative]::GetDlgItem($h,101))) { throw 'Browse button hidden on settings page' }
  if ([ThemeNative]::IsWindowVisible([ThemeNative]::GetDlgItem($h,104))) { throw 'Start button overlaps settings page' }
- Capture 'launcher-v0.4.1-instellingen.png'
+ $nameControl = [ThemeNative]::GetDlgItem($h,108)
+ if (![ThemeNative]::IsWindowVisible($nameControl)) { throw 'LAN name field is hidden' }
+ $value = New-Object Text.StringBuilder 64
+ [void][ThemeNative]::GetWindowText($nameControl,$value,64)
+ if ($value.ToString() -ne 'Survivor') { throw 'Legacy configuration has no default LAN name' }
+ Capture 'launcher-v0.4.2-instellingen.png'
  [void][ThemeNative]::SendMessage($h,0x10,[IntPtr]::Zero,[IntPtr]::Zero)
  if (!$process.WaitForExit(5000)) { throw 'Launcher did not close normally' }
  if ($process.ExitCode -ne 0) { throw 'Launcher returned an error' }

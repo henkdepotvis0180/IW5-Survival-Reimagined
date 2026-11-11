@@ -1,4 +1,15 @@
-# Opstartresources v0.4.1
+# LAN-spelernaam v0.4.2
+
+Vul in INSTELLINGEN de spelernaam (LAN) in. Deze wordt onthouden en expliciet als
++name meegegeven. De launcher gebruikt de extra opstartopties uit de officiële
+Plutonium-launcher niet, omdat hij de bootstrapper rechtstreeks start.
+Je forumaccount wordt niet gewijzigd. Bestaande configuraties krijgen Survivor
+als neutrale standaardnaam. Je kunt die vóór het starten aanpassen.
+Een naam van 16 tekens wordt door de launcher ongewijzigd doorgegeven.
+Dit herstelt het concrete verschil in startargumenten; een native crash met
+Crash reference ID 0 is niet op basis van alleen die melding verklaard.
+
+# Opstartresources v0.4.2
 
 De originele mod.iwd wordt bij installatie tevens als LB_Survival_Resources.iwd
 in de actieve storage/iw5-map geplaatst. Zo zijn afbeeldingen en geluiden beschikbaar
@@ -12,7 +23,7 @@ modresource-IWD ontbrak uit het vroege zoekpad bij de weapon_famas-fout.
 De installatietest controleert beide locaties en de drie eerder genoemde images.
 De volledige gameplay moet nog op de gebruikersinstallatie worden bevestigd.
 
-# Survival Reimagined Launcher v0.4.1 — Operations UI
+# Survival Reimagined Launcher v0.4.2 — Operations UI
 
 Donkere, game-geïnspireerde vormgeving met olijfgroene accenten en originele
 vectorillustratie van een tactische kaart. SPELEN toont de startknop en startmap;
@@ -84,13 +95,13 @@ Log: `%LOCALAPPDATA%\SurvivalReimagined\last-launch.log`.
 ## Bouwen en valideren
 
 Vanuit deze map: `python3 build.py`, met Python 3 en Go >= 1.23.
-Dit voert de zeven installatietests uit, bouwt de Windows-executable
- en maakt `dist/SurvivalReimagined-Windows-v0.4.1.zip` met checksums en instructies.
+Dit voert de acht installatietests uit, bouwt de Windows-executable
+ en maakt `dist/SurvivalReimagined-Windows-v0.4.2.zip` met checksums en instructies.
 Geen externe Go-modules. Het programma heeft Windows' GUI-subsystem en gebruikt
 standaard Win32-controls; debug-symbolen worden niet gestript. VCS-buildmetadata
 wordt weggelaten voor reproduceerbare builds tussen schone checkouts.
 
-Gecontroleerd in Linux: zeven tests, Windows cross-compilatie, Windows `go vet`,
+Gecontroleerd in Linux: acht tests, Windows cross-compilatie, Windows `go vet`,
 GUI-subsystem en ZIP-integriteit. De release-workflow start de echte executable
 op Windows, controleert de speel- en instellingenpagina en het sluiten van de
 app, en maakt screenshots. Publiceren gebeurt pas na deze Windows-smoketest.

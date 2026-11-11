@@ -14,10 +14,11 @@ import (
 )
 
 type Config struct {
-	GameDir  string `json:"game_directory"`
-	PlutoDir string `json:"plutonium_directory"`
-	Map      string `json:"map"`
-	TestMenu bool   `json:"test_menu"`
+	PlayerName string `json:"player_name"`
+	GameDir    string `json:"game_directory"`
+	PlutoDir   string `json:"plutonium_directory"`
+	Map        string `json:"map"`
+	TestMenu   bool   `json:"test_menu"`
 }
 
 func saveConfig(path string, cfg Config) error {
@@ -60,11 +61,18 @@ func launchArgs(cfg Config) ([]string, error) {
 	if !regexp.MustCompile(`^mp_[a-z0-9_]+$`).MatchString(cfg.Map) {
 		return nil, fmt.Errorf("Ongeldige mapnaam: %q", cfg.Map)
 	}
+	name := cfg.PlayerName
+	if name == "" {
+		name = "Survivor"
+	}
+	if !regexp.MustCompile(`^[A-Za-z0-9_.-]{1,16}$`).MatchString(name) {
+		return nil, fmt.Errorf("Kies een LAN-naam van 1 tot 16 letters, cijfers, punten, streepjes of underscores")
+	}
 	test := "0"
 	if cfg.TestMenu {
 		test = "1"
 	}
-	return []string{"iw5mp", cfg.GameDir, "-lan", "+set", "fs_game", "mods/survival", "+set", "survival_test_menu", test, "+load_dsr", "survival", "+map", cfg.Map}, nil
+	return []string{"iw5mp", cfg.GameDir, "-lan", "+name", name, "+set", "fs_game", "mods/survival", "+set", "survival_test_menu", test, "+load_dsr", "survival", "+map", cfg.Map}, nil
 }
 
 // Reject traversal and symlinked destination paths before touching any files.
