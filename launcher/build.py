@@ -34,7 +34,7 @@ exe = out / "SurvivalReimagined.exe"
 subprocess.run([go, "build", "-trimpath", "-buildvcs=false", "-ldflags=-H=windowsgui", "-o", str(exe), "."], cwd=root, env=env, check=True)
 (out / "SHA256SUMS.txt").write_text(hashlib.sha256(exe.read_bytes()).hexdigest() + "  " + exe.name + "\n")
 print(exe)
-package = out / "SurvivalReimagined-Windows-v0.4.0.zip"
+package = out / "SurvivalReimagined-Windows-v0.4.1.zip"
 with zipfile.ZipFile(package, "w", zipfile.ZIP_DEFLATED) as archive:
     for source, name in [
         (exe, exe.name),

@@ -107,7 +107,26 @@ func install(payload []byte, root, backup string) (int, error) {
 		return 0, err
 	}
 	pending := []pendingFile{}
+	// Root zone fastfiles can load before fs_game mounts mods/survival. Make the
+	// same original resource archive visible during that initial search phase.
+	files := append([]*zip.File(nil), z.File...)
+	var resources *zip.File
 	for _, f := range z.File {
+		if f.Name == "iw5/mods/survival/mod.iwd" {
+			resources = f
+		}
+	}
+	if resources != nil {
+		for _, f := range z.File {
+			if f.Name == "iw5/LB_Survival_Resources.iwd" {
+				return 0, fmt.Errorf("Duplicate early resource destination")
+			}
+		}
+		alias := *resources
+		alias.Name = "iw5/LB_Survival_Resources.iwd"
+		files = append(files, &alias)
+	}
+	for _, f := range files {
 		if f.FileInfo().IsDir() {
 			continue
 		}

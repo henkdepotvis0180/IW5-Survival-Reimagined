@@ -1,4 +1,18 @@
-# Survival Reimagined Launcher v0.4.0 — Operations UI
+# Opstartresources v0.4.1
+
+De originele mod.iwd wordt bij installatie tevens als LB_Survival_Resources.iwd
+in de actieve storage/iw5-map geplaatst. Zo zijn afbeeldingen en geluiden beschikbaar
+wanneer de root-zone fastfiles laden, vóór mods/survival gemount is. Het zijn exact
+dezelfde originele bytes, geen vervangende textures. Beide archieven krijgen de
+bestaande backup- en herstelbehandeling. Het resourcearchief staat in gedeelde
+storage en is daardoor ook buiten een Survival-match vindbaar.
+
+Deze verandering volgt het gebruikerslog: de bibliotheken waren gemount, maar de
+modresource-IWD ontbrak uit het vroege zoekpad bij de weapon_famas-fout.
+De installatietest controleert beide locaties en de drie eerder genoemde images.
+De volledige gameplay moet nog op de gebruikersinstallatie worden bevestigd.
+
+# Survival Reimagined Launcher v0.4.1 — Operations UI
 
 Donkere, game-geïnspireerde vormgeving met olijfgroene accenten en originele
 vectorillustratie van een tactische kaart. SPELEN toont de startknop en startmap;
@@ -71,7 +85,7 @@ Log: `%LOCALAPPDATA%\SurvivalReimagined\last-launch.log`.
 
 Vanuit deze map: `python3 build.py`, met Python 3 en Go >= 1.23.
 Dit voert de zeven installatietests uit, bouwt de Windows-executable
- en maakt `dist/SurvivalReimagined-Windows-v0.4.0.zip` met checksums en instructies.
+ en maakt `dist/SurvivalReimagined-Windows-v0.4.1.zip` met checksums en instructies.
 Geen externe Go-modules. Het programma heeft Windows' GUI-subsystem en gebruikt
 standaard Win32-controls; debug-symbolen worden niet gestript. VCS-buildmetadata
 wordt weggelaten voor reproduceerbare builds tussen schone checkouts.

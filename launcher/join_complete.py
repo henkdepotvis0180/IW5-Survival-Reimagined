@@ -4,7 +4,7 @@ import json
 import sys
 import zipfile
 
-root = Path(__file__).resolve().parent.parent / "downloads/complete-v0.4.0"
+root = Path(__file__).resolve().parent.parent / "downloads/complete-v0.4.1"
 manifest = json.loads((root / "manifest.json").read_text())
 output = Path(sys.argv[1]) / manifest["name"]
 with output.open("wb") as target:

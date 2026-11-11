@@ -47,6 +47,31 @@ func TestBundledImageRepair(t *testing.T) {
 	if fmt.Sprintf("%x", sha256.Sum256(image)) != "b48b0f2301616c22e96c0788f2699ee9c8016491144fef80529db6671a4ad362" {
 		t.Fatal("Bundled repair does not contain the original upstream image")
 	}
+	// The early engine search path must resolve the same original image bytes
+	// even before mods/survival is mounted.
+	early, err := os.ReadFile(filepath.Join(root, "LB_Survival_Resources.iwd"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	installed, err := os.ReadFile(mod)
+	if err != nil || !bytes.Equal(early, installed) {
+		t.Fatal("Early resources differ from installed mod archive", err)
+	}
+	earlyZip, err := zip.NewReader(bytes.NewReader(early), int64(len(early)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"images/weapon_famas.iwi", "images/lb_box_png.iwi", "images/preview_mp_dlc.iwi"} {
+		entry, err := earlyZip.Open(name)
+		if err != nil {
+			t.Fatal("Missing early image", name, err)
+		}
+		data, err := io.ReadAll(entry)
+		entry.Close()
+		if err != nil || !bytes.HasPrefix(data, []byte("IWi")) {
+			t.Fatal("Invalid early image", name, err)
+		}
+	}
 	count, err := install(payload, root, backups)
 	if err != nil || count != 0 {
 		t.Fatalf("Repair reinstall: %d files, %v", count, err)
