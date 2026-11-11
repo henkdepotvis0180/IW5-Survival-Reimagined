@@ -14,7 +14,7 @@ public static class ThemeNative {
 }
 '@
 $folder = Join-Path $env:RUNNER_TEMP 'theme-test'
-Expand-Archive (Join-Path $env:RUNNER_TEMP 'SurvivalReimagined-Windows-v0.4.2.zip') $folder
+Expand-Archive (Join-Path $env:RUNNER_TEMP 'SurvivalReimagined-Windows-v0.4.3.zip') $folder
 $process = Start-Process (Join-Path $folder 'SurvivalReimagined.exe') -PassThru
 try {
  for ($i=0; $i -lt 20; $i++) {
@@ -42,7 +42,7 @@ try {
  [void][ThemeNative]::SendMessage($h,0x111,[IntPtr]106,[IntPtr]::Zero)
  Start-Sleep -Milliseconds 500
  if (![ThemeNative]::IsWindowVisible([ThemeNative]::GetDlgItem($h,104))) { throw 'Start button hidden on play page' }
- Capture 'launcher-v0.4.2-spelen.png'
+ Capture 'launcher-v0.4.3-spelen.png'
  [void][ThemeNative]::SendMessage($h,0x111,[IntPtr]107,[IntPtr]::Zero)
  Start-Sleep -Milliseconds 500
  if (![ThemeNative]::IsWindowVisible([ThemeNative]::GetDlgItem($h,101))) { throw 'Browse button hidden on settings page' }
@@ -52,7 +52,7 @@ try {
  $value = New-Object Text.StringBuilder 64
  [void][ThemeNative]::GetWindowText($nameControl,$value,64)
  if ($value.ToString() -ne 'Survivor') { throw 'Legacy configuration has no default LAN name' }
- Capture 'launcher-v0.4.2-instellingen.png'
+ Capture 'launcher-v0.4.3-instellingen.png'
  [void][ThemeNative]::SendMessage($h,0x10,[IntPtr]::Zero,[IntPtr]::Zero)
  if (!$process.WaitForExit(5000)) { throw 'Launcher did not close normally' }
  if ($process.ExitCode -ne 0) { throw 'Launcher returned an error' }

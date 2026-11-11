@@ -1,0 +1,26 @@
+{
+  "name": "SurvivalReimagined-Windows-v0.4.3.zip",
+  "sha256": "1f0d1cc2bfeccce85c6906a260d77965fd51887455c1802977926ea5f5198eaa",
+  "parts": [
+    {
+      "name": "complete.part001",
+      "sha256": "cc96b1188a1a0a79b61da113f1a6d3d43294d8a055b12e36e6c1698c0aef44ed"
+    },
+    {
+      "name": "complete.part002",
+      "sha256": "f530e743f977e353414db1897761a696a30d3fd6a2f0d6bcc43115b0407be7f8"
+    },
+    {
+      "name": "complete.part003",
+      "sha256": "1ac992cc1c7b37bbc54d09ca513597124a5d11f12c8eb16bbcc6cefdf1427465"
+    },
+    {
+      "name": "complete.part004",
+      "sha256": "c1d499166b45e27d4eb676e71b3352b782f470999c332539a8055ae205ad39ac"
+    },
+    {
+      "name": "complete.part005",
+      "sha256": "39f728585896ec6090e7cee0514723bde6c855501679e162a4135c40d3f6ea03"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import hashlib
 import os
 import subprocess
 import zipfile
+import io
 
 root = Path(__file__).resolve().parent
 repo = root.parent
@@ -21,11 +22,24 @@ for name, checksum in expected.items():
     files["iw5/" + name] = path
     if name.startswith("mods/survival/") and name.endswith(".ff"):
         files["iw5/zone/" + path.name] = path
+# Package project scripts in a high-priority IWD. Loose files alone can lose
+# to the original LB_Survival.iwd in the engine's archive-first search order.
+overrides = io.BytesIO()
+with zipfile.ZipFile(overrides, "w", zipfile.ZIP_DEFLATED) as patch:
+    for path in sorted((repo / "iw5").rglob("*.gsc")):
+        if path.is_symlink():
+            raise RuntimeError(f"Unexpected script symlink: {path}")
+        name = path.relative_to(repo / "iw5").as_posix().lower()
+        info = zipfile.ZipInfo(name, (2026, 1, 1, 0, 0, 0))
+        info.compress_type = zipfile.ZIP_DEFLATED
+        patch.writestr(info, path.read_bytes())
 with zipfile.ZipFile(root / "payload.zip", "w", zipfile.ZIP_DEFLATED) as archive:
     for name, path in sorted(files.items()):
         info = zipfile.ZipInfo(name, (2026, 1, 1, 0, 0, 0))
         info.compress_type = zipfile.ZIP_DEFLATED
         archive.writestr(info, path.read_bytes())
+    for name in ["iw5/zz_survival_reimagined.iwd", "iw5/mods/survival/zz_survival_reimagined.iwd"]:
+        archive.writestr(name, overrides.getvalue())
 subprocess.run([go, "test", "./..."], cwd=root, check=True)
 out = root / "dist"
 out.mkdir(exist_ok=True)
@@ -34,7 +48,7 @@ exe = out / "SurvivalReimagined.exe"
 subprocess.run([go, "build", "-trimpath", "-buildvcs=false", "-ldflags=-H=windowsgui", "-o", str(exe), "."], cwd=root, env=env, check=True)
 (out / "SHA256SUMS.txt").write_text(hashlib.sha256(exe.read_bytes()).hexdigest() + "  " + exe.name + "\n")
 print(exe)
-package = out / "SurvivalReimagined-Windows-v0.4.2.zip"
+package = out / "SurvivalReimagined-Windows-v0.4.3.zip"
 with zipfile.ZipFile(package, "w", zipfile.ZIP_DEFLATED) as archive:
     for source, name in [
         (exe, exe.name),

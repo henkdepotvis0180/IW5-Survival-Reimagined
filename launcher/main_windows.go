@@ -126,7 +126,7 @@ func (a *launcherUI) initControls(cfg Config) {
 	a.mapName = a.control("EDIT", cfg.Map, 0x00810080, 280, 336, 240, 32, 0)
 	a.playerName = a.control("EDIT", cfg.PlayerName, 0x00810080, 560, 336, 400, 32, 108)
 	sendMessage.Call(a.playerName, 0xC5, 16, 0)
-	a.test = a.control("BUTTON", "Host-testmenu met geld inschakelen", 0x10003, 280, 406, 680, 32, 0)
+	a.test = a.control("BUTTON", "Geldtestmenu inschakelen (actieslot 5)", 0x10003, 280, 406, 680, 32, 0)
 	syscall.NewLazyDLL("uxtheme.dll").NewProc("SetWindowTheme").Call(a.test, uintptr(unsafe.Pointer(wide(""))), uintptr(unsafe.Pointer(wide(""))))
 	if cfg.TestMenu {
 		sendMessage.Call(a.test, 0xF1, 1, 0)
@@ -372,7 +372,7 @@ func runUI(state string) error {
 	if screenH > 720 {
 		y = (screenH - 720) / 2
 	}
-	hwnd, _, err := user32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.className)), uintptr(unsafe.Pointer(wide("Survival Reimagined Launcher 0.4.2 - testversie"))), 0x02CA0000, x, y, 1040, 720, 0, 0, instance, 0)
+	hwnd, _, err := user32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.className)), uintptr(unsafe.Pointer(wide("Survival Reimagined Launcher 0.4.3 - testversie"))), 0x02CA0000, x, y, 1040, 720, 0, 0, instance, 0)
 	if hwnd == 0 {
 		return fmt.Errorf("Venster openen mislukt: %v", err)
 	}
@@ -434,7 +434,7 @@ func main() {
 	}
 	defer file.Close()
 	log.SetOutput(file)
-	log.Println("Launcher 0.4.2 gestart")
+	log.Println("Launcher 0.4.3 gestart")
 	if err = runUI(state); err != nil {
 		log.Println("FOUT:", err)
 		message(0, err.Error())

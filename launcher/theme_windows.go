@@ -112,7 +112,7 @@ func drawScene(dc uintptr, client rect) {
 	text(dc, "REIMAGINED", rect{24, 108, 220, 132}, colorGreen, theme.small, 0)
 	line(dc, 24, 150, 208, 150, colorLine)
 	text(dc, "COMPLETE EDITION", rect{24, 620, 220, 642}, colorMuted, theme.small, 0)
-	text(dc, "v0.4.2 / WINDOWS", rect{24, 644, 220, 665}, colorMuted, theme.small, 0)
+	text(dc, "v0.4.3 / WINDOWS", rect{24, 644, 220, 665}, colorMuted, theme.small, 0)
 	text(dc, "IW5 / SURVIVAL REIMAGINED", rect{280, 28, 760, 50}, colorMuted, theme.small, 0)
 	text(dc, "LAN / PRIVATE MATCH", rect{760, 28, 980, 50}, colorGreen, theme.small, 2)
 	line(dc, 280, 66, 960, 66, colorLine)

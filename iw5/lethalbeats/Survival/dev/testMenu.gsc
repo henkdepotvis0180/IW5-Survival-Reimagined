@@ -11,7 +11,9 @@ watch()
 	self notifyOnPlayerCommand("survival_test_toggle", "+actionslot 5");
 	self notifyOnPlayerCommand("survival_test_small", "+actionslot 6");
 	self notifyOnPlayerCommand("survival_test_large", "+actionslot 7");
-	panel = hud_create_string(self, "TEST CASH | Slot 6: +$1,000 | Slot 7: +$10,000 | Slot 5: close", "hudsmall", 0.7, "TOP CENTER", "TOP CENTER", 0, 65);
+	if (getDvarInt("survival_test_menu"))
+		self iPrintLn("Testmenu: druk op [{+actionslot 5}] om te openen.");
+	panel = hud_create_string(self, "TEST CASH | [{+actionslot 6}]: +$1,000 | [{+actionslot 7}]: +$10,000 | [{+actionslot 5}]: sluiten", "hudsmall", 0.7, "TOP CENTER", "TOP CENTER", 0, 65);
 	panel.alpha = 0;
 	self thread cleanup(panel);
 	opened = false;

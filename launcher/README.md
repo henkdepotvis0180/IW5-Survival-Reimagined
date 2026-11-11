@@ -1,3 +1,21 @@
+# Testmenu en scriptprioriteit v0.4.3
+
+De project-GSC-scripts worden tevens in zz_survival_reimagined.iwd geplaatst,
+zowel in storage/iw5 als mods/survival. De zz-naam volgt de aflopende archief-
+zoekvolgorde die het gebruikerslog toont. Dit laat de aangepaste scripts vóór
+de oorspronkelijke LB_Survival-scripts vinden. De originele baselinearchieven
+blijven behouden. De compiler moet nu ook dev/testmenu.gsc in console.log noemen.
+
+Schakel het geldtestmenu in bij Instellingen. Gebruik daarna de bestaande toets
+of controllerknop voor actieslot 5; F5 is NIET verplicht. Actieslot 6 geeft $1.000,
+actieslot 7 geeft $10.000 wanneer het paneel open is. Als die acties nog geen
+toets hebben, moeten ze wel in de gamebediening worden gekoppeld. Bestaande
+bindings worden niet overschreven. De HUD verwijst naar de ingestelde binding.
+Gebruik een privétest zonder streaks die dezelfde actieslots gebruiken.
+
+De levering, hashgelijkheid van scripts en UI worden getest; echte GSC-compilatie
+en in-game menubediening zijn nog niet op deze build uitgevoerd.
+
 # LAN-spelernaam v0.4.2
 
 Vul in INSTELLINGEN de spelernaam (LAN) in. Deze wordt onthouden en expliciet als
@@ -95,13 +113,13 @@ Log: `%LOCALAPPDATA%\SurvivalReimagined\last-launch.log`.
 ## Bouwen en valideren
 
 Vanuit deze map: `python3 build.py`, met Python 3 en Go >= 1.23.
-Dit voert de acht installatietests uit, bouwt de Windows-executable
+Dit voert de negen installatietests uit, bouwt de Windows-executable
  en maakt `dist/SurvivalReimagined-Windows-v0.4.2.zip` met checksums en instructies.
 Geen externe Go-modules. Het programma heeft Windows' GUI-subsystem en gebruikt
 standaard Win32-controls; debug-symbolen worden niet gestript. VCS-buildmetadata
 wordt weggelaten voor reproduceerbare builds tussen schone checkouts.
 
-Gecontroleerd in Linux: acht tests, Windows cross-compilatie, Windows `go vet`,
+Gecontroleerd in Linux: negen tests, Windows cross-compilatie, Windows `go vet`,
 GUI-subsystem en ZIP-integriteit. De release-workflow start de echte executable
 op Windows, controleert de speel- en instellingenpagina en het sluiten van de
 app, en maakt screenshots. Publiceren gebeurt pas na deze Windows-smoketest.

@@ -5,7 +5,7 @@ on:
     paths:
       - .github/workflows/publish-complete-launcher.yml
       - launcher/join_complete.py
-      - downloads/complete-v0.4.2/**
+      - downloads/complete-v0.4.3/**
 permissions:
   contents: write
 jobs:
@@ -20,7 +20,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: theme-screenshots
-          path: ${{ runner.temp }}/launcher-v0.4.2-*.png
+          path: ${{ runner.temp }}/launcher-v0.4.3-*.png
   publish:
     needs: windows-smoke
     runs-on: ubuntu-latest
@@ -37,7 +37,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          tag=survival-launcher-v0.4.2
-          gh release create "$tag" --target "$GITHUB_SHA" --draft --prerelease --title "Survival Reimagined Launcher v0.4.2 — LAN-spelernaam (Operations UI)" --notes "De LAN-spelernaam wordt opgeslagen en expliciet met +name meegegeven, zoals bij de officiële Plutonium-startopties. Zelfstandige native crashes zijn hiermee niet bewezen opgelost. Een complete ZIP met een donkere military Operations UI, aparte instellingen, tactische illustratie en volledige modresources. Windows-venster, paginawissel en afsluiten worden getest op een Windows-runner; screenshots staan bij deze release. Uitpakken, exe openen, installatiemappen controleren en Start Survival. Vervangen bestanden krijgen backups. Inclusief lb_box_png en preview_mp_dlc. Statisch gecontroleerd en getest; Game-start en gameplay zijn niet op deze runner getest. Geen scannerblokkades omzeilen."
-          gh release upload "$tag" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.4.2.zip" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.4.2.sha256" "$RUNNER_TEMP"/launcher-v0.4.2-*.png
+          tag=survival-launcher-v0.4.3
+          gh release create "$tag" --target "$GITHUB_SHA" --draft --prerelease --title "Survival Reimagined Launcher v0.4.3 — scriptprioriteit en testmenu (Operations UI)" --notes "De aangepaste GSC-scripts zitten nu in een prioriteitsarchief, zodat de oorspronkelijke LB_Survival-scripts het testmenu en andere aanpassingen niet overschaduwen. Het menu gebruikt je bestaande actieslot-5-binding; F5 is geen vereiste. Gameplay blijft nog te testen. Een complete ZIP met een donkere military Operations UI, aparte instellingen, tactische illustratie en volledige modresources. Windows-venster, paginawissel en afsluiten worden getest op een Windows-runner; screenshots staan bij deze release. Uitpakken, exe openen, installatiemappen controleren en Start Survival. Vervangen bestanden krijgen backups. Inclusief lb_box_png en preview_mp_dlc. Statisch gecontroleerd en getest; Game-start en gameplay zijn niet op deze runner getest. Geen scannerblokkades omzeilen."
+          gh release upload "$tag" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.4.3.zip" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.4.3.sha256" "$RUNNER_TEMP"/launcher-v0.4.3-*.png
           gh release edit "$tag" --draft=false --prerelease
