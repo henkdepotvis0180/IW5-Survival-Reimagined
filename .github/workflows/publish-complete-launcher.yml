@@ -1,0 +1,56 @@
+name: Publish complete Survival launcher
+on:
+  push:
+    branches: [feature/survival-launcher]
+    paths:
+      - .github/workflows/publish-complete-launcher.yml
+      - launcher/join_complete.py
+      - downloads/complete-v0.5.1/**
+permissions:
+  contents: write
+jobs:
+  windows-smoke:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          sparse-checkout: |
+            launcher
+            downloads/complete-v0.5.1
+      - name: Test native launch guard and safe video profile update
+        working-directory: launcher
+        run: |
+          New-Item payload.zip -ItemType File -Force | Out-Null
+          go test -run 'TestLaunchGuard|TestVideoProfile' -v ./...
+      - name: Assemble and verify Windows build
+        run: python launcher/join_complete.py "$env:RUNNER_TEMP"
+      - name: Open launcher, test pages and capture real UI
+        run: ./launcher/test-theme.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: theme-screenshots
+          path: ${{ runner.temp }}/launcher-v0.5.1-*.png
+  publish:
+    needs: windows-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          sparse-checkout: |
+            launcher
+            downloads/complete-v0.5.1
+      - name: Verify and assemble complete package
+        run: python3 launcher/join_complete.py "$RUNNER_TEMP"
+      - uses: actions/download-artifact@v4
+        with:
+          name: theme-screenshots
+          path: ${{ runner.temp }}
+      - name: Publish versioned complete launcher
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag=survival-launcher-v0.5.1
+          gh release create "$tag" --target "$GITHUB_SHA" --draft --prerelease --title "Survival Reimagined Launcher v0.5.1 — videoprofiel-herstel (Operations UI)" --notes "Gekozen video-opties worden voor de gamestart ook in de bestaande config_mp.cfg gezet, met backup. De launcher stopt met een duidelijke melding als het profiel ontbreekt of de game nog draait. Screenshot-preset voor 1280x720 in een venster. Standaard worden bestaande video-instellingen behouden. Toepassen bij de volgende gamestart. Echte rendering en gameplay zijn niet getest op de runner. Een complete ZIP met een donkere military Operations UI, aparte instellingen, tactische illustratie en volledige modresources. Windows-venster, paginawissel en afsluiten worden getest op een Windows-runner; screenshots staan bij deze release. Uitpakken, exe openen, installatiemappen controleren en Start Survival. Vervangen bestanden krijgen backups. Inclusief lb_box_png en preview_mp_dlc. Statisch gecontroleerd en getest; Game-start en gameplay zijn niet op deze runner getest. Geen scannerblokkades omzeilen."
+          gh release upload "$tag" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.5.1.zip" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.5.1.sha256" "$RUNNER_TEMP"/launcher-v0.5.1-*.png
+          gh release edit "$tag" --draft=false --prerelease

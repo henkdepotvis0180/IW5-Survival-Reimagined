@@ -1,0 +1,28 @@
+name: Publish complete resource repair ZIP
+on:
+  push:
+    branches: [feature/survival-launcher]
+    paths:
+      - .github/workflows/publish-resource-repair.yml
+      - launcher/assemble_resource_repair.py
+      - downloads/resource-herstel/**
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify and combine ZIP parts
+        run: python3 launcher/assemble_resource_repair.py "$RUNNER_TEMP/IW5-Survival-Reimagined-Resourceherstel-v0.1.0.zip"
+      - name: Upload and publish test release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag=iw5-resource-repair-v0.1.0
+          if ! gh release view "$tag" >/dev/null 2>&1; then
+            gh release create "$tag" --target "$GITHUB_SHA" --draft --prerelease --title "IW5 aanvullend resourceherstel — één ZIP (testversie)" --notes "Aanvullend herstel uit originele resources. Maak een backup en pak uit in storage/iw5; sla bestaande bestanden over. Bestaande versieverschillen zijn behouden. Windows/gameplay en Defender zijn niet getest."
+          fi
+          gh release upload "$tag" "$RUNNER_TEMP/IW5-Survival-Reimagined-Resourceherstel-v0.1.0.zip" "$RUNNER_TEMP/IW5-Survival-Reimagined-Resourceherstel-v0.1.0.sha256"
+          gh release edit "$tag" --draft=false --prerelease --title "IW5 Survival Reimagined — Resourceherstel v0.1.0 (voor Launcher v0.2.1)"

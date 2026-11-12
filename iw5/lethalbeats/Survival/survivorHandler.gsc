@@ -136,6 +136,7 @@ onPlayerSpawn()
 		self thread onWeaponChange();
 		self thread onOffhandEnd();
 		self thread onUseShop();
+		self thread lethalbeats\survival\dev\testMenu::watch();
 		self thread onHideScore();
 		self thread dropWeaponMonitor();
 		self thread onPlayerMelee();

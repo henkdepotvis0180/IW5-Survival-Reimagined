@@ -37,6 +37,8 @@ main()
 	level.botLimit = MAX_CLIENT_SLOTS - 1;
 	setDvarIfUninitialized("survival_survivors_limit", 4);
 	setDvarIfUninitialized("survival_dev_mode", 0);
+	setDvarIfUninitialized("survival_test_menu", 0);
+	setDvarIfUninitialized("survival_intro_camera", 1);
 	setDvarIfUninitialized("survival_wait_shops", 1);
 	setDvarIfUninitialized("survival_wave_start", 1);
 	setDvarIfUninitialized("survival_wait_respawn", 0);
