@@ -267,6 +267,21 @@ func (a *launcherUI) command(id uintptr) {
 }
 
 func launch(cfg Config, state string, post func(uiEvent)) error {
+	unlock, err := lockLaunch()
+	if err != nil {
+		return err
+	}
+	defer unlock()
+	if err = requireGameClosed(); err != nil {
+		return err
+	}
+	profile, changed, err := prepareVideoProfile(cfg, state)
+	if err != nil {
+		return err
+	}
+	if profile != "" {
+		log.Printf("Videoprofiel: %s bijgewerkt=%t (backup in %s)", profile, changed, filepath.Join(state, "backups", "video-profile"))
+	}
 	log.Println("Modbestanden controleren...")
 	count, err := install(payload, filepath.Join(cfg.PlutoDir, "storage", "iw5"), filepath.Join(state, "backups"))
 	if err != nil {
@@ -391,7 +406,7 @@ func runUI(state string) error {
 	if screenH > 720 {
 		y = (screenH - 720) / 2
 	}
-	hwnd, _, err := user32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.className)), uintptr(unsafe.Pointer(wide("Survival Reimagined Launcher 0.5.0 - testversie"))), 0x02CA0000, x, y, 1040, 720, 0, 0, instance, 0)
+	hwnd, _, err := user32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.className)), uintptr(unsafe.Pointer(wide("Survival Reimagined Launcher 0.5.1 - testversie"))), 0x02CA0000, x, y, 1040, 720, 0, 0, instance, 0)
 	if hwnd == 0 {
 		return fmt.Errorf("Venster openen mislukt: %v", err)
 	}
@@ -453,7 +468,7 @@ func main() {
 	}
 	defer file.Close()
 	log.SetOutput(file)
-	log.Println("Launcher 0.5.0 gestart")
+	log.Println("Launcher 0.5.1 gestart")
 	if err = runUI(state); err != nil {
 		log.Println("FOUT:", err)
 		message(0, err.Error())

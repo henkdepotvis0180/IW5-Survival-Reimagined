@@ -1,3 +1,26 @@
+# Videoprofiel v0.5.1
+
+Bij een gekozen video-optie zoekt de launcher nu vóór de gamestart naar een
+bestaande config_mp.cfg. Volgorde: Plutonium/storage/iw5/players, daarna players2;
+vervolgens de players2- en players-map in je geselecteerde MW3-installatie.
+Alleen de geselecteerde videowaarden worden gewijzigd. Andere instellingen,
+naam en binds blijven behouden. Er wordt eerst een exacte backup gemaakt in
+%LOCALAPPDATA%/SurvivalReimagined/backups/video-profile. Het geselecteerde pad
+staat in Log bekijken.
+
+Als alles op Bestaande instelling staat, wordt geen videoprofiel aangeraakt.
+Een ontbrekend, alleen-lezen of onbekend gecodeerd profiel geeft een melding;
+er wordt geen configuratie op een gegokte locatie aangemaakt. Start MW3 eenmaal
+via de officiële launcher als er nog geen profiel bestaat. De launcher weigert
+updates als een Plutonium/MW3-game nog draait of een andere launcher al start.
+
+Dit is de nieuwe route voor systemen waar de losse startopties geen effect
+hadden. Bestaande gekozen video-opties worden automatisch hergebruikt. De tests
+controleren backups, herhaalbaarheid, BOM/UTF-16/regelafbrekingen, behoud van binds
+en foutgevallen. Op Windows worden bovendien de native startvergrendeling en
+profielschrijftests uitgevoerd. Het daadwerkelijke MW3-renderresultaat moet nog
+op de gebruikersinstallatie worden bevestigd.
+
 # Video-opties v0.5.0
 
 Open VIDEO in de linker navigatie. Kies Venstermodus of Volledig scherm en
@@ -132,13 +155,13 @@ Log: `%LOCALAPPDATA%\SurvivalReimagined\last-launch.log`.
 ## Bouwen en valideren
 
 Vanuit deze map: `python3 build.py`, met Python 3 en Go >= 1.23.
-Dit voert de tien installatietests uit, bouwt de Windows-executable
+Dit voert de dertien installatietests uit, bouwt de Windows-executable
  en maakt `dist/SurvivalReimagined-Windows-v0.4.2.zip` met checksums en instructies.
 Geen externe Go-modules. Het programma heeft Windows' GUI-subsystem en gebruikt
 standaard Win32-controls; debug-symbolen worden niet gestript. VCS-buildmetadata
 wordt weggelaten voor reproduceerbare builds tussen schone checkouts.
 
-Gecontroleerd in Linux: tien tests, Windows cross-compilatie, Windows `go vet`,
+Gecontroleerd in Linux: dertien tests, Windows cross-compilatie, Windows `go vet`,
 GUI-subsystem en ZIP-integriteit. De release-workflow start de echte executable
 op Windows, controleert de speel- en instellingenpagina en het sluiten van de
 app, en maakt screenshots. Publiceren gebeurt pas na deze Windows-smoketest.

@@ -14,7 +14,7 @@ public static class ThemeNative {
 }
 '@
 $folder = Join-Path $env:RUNNER_TEMP 'theme-test'
-Expand-Archive (Join-Path $env:RUNNER_TEMP 'SurvivalReimagined-Windows-v0.5.0.zip') $folder
+Expand-Archive (Join-Path $env:RUNNER_TEMP 'SurvivalReimagined-Windows-v0.5.1.zip') $folder
 $process = Start-Process (Join-Path $folder 'SurvivalReimagined.exe') -PassThru
 try {
  for ($i=0; $i -lt 20; $i++) {
@@ -42,7 +42,7 @@ try {
  [void][ThemeNative]::SendMessage($h,0x111,[IntPtr]106,[IntPtr]::Zero)
  Start-Sleep -Milliseconds 500
  if (![ThemeNative]::IsWindowVisible([ThemeNative]::GetDlgItem($h,104))) { throw 'Start button hidden on play page' }
- Capture 'launcher-v0.5.0-spelen.png'
+ Capture 'launcher-v0.5.1-spelen.png'
  [void][ThemeNative]::SendMessage($h,0x111,[IntPtr]107,[IntPtr]::Zero)
  Start-Sleep -Milliseconds 500
  if (![ThemeNative]::IsWindowVisible([ThemeNative]::GetDlgItem($h,101))) { throw 'Browse button hidden on settings page' }
@@ -52,7 +52,7 @@ try {
  $value = New-Object Text.StringBuilder 64
  [void][ThemeNative]::GetWindowText($nameControl,$value,64)
  if ($value.ToString() -ne 'Survivor') { throw 'Legacy configuration has no default LAN name' }
- Capture 'launcher-v0.5.0-instellingen.png'
+ Capture 'launcher-v0.5.1-instellingen.png'
  [void][ThemeNative]::SendMessage($h,0x111,[IntPtr]109,[IntPtr]::Zero)
  Start-Sleep -Milliseconds 500
  $display=[ThemeNative]::GetDlgItem($h,110)
@@ -63,7 +63,7 @@ try {
  [void][ThemeNative]::SendMessage($h,0x111,[IntPtr]114,[IntPtr]::Zero)
  if ([ThemeNative]::SendMessage($display,0x147,[IntPtr]::Zero,[IntPtr]::Zero).ToInt64() -ne 1) { throw 'Screenshot preset did not select windowed mode' }
  if ([ThemeNative]::SendMessage($resolution,0x147,[IntPtr]::Zero,[IntPtr]::Zero).ToInt64() -ne 1) { throw 'Screenshot preset did not select 1280x720' }
- Capture 'launcher-v0.5.0-video.png'
+ Capture 'launcher-v0.5.1-video.png'
  [void][ThemeNative]::SendMessage($h,0x111,[IntPtr]106,[IntPtr]::Zero)
  if ([ThemeNative]::IsWindowVisible($display)) { throw 'Video controls overlap play page' }
  [void][ThemeNative]::SendMessage($h,0x10,[IntPtr]::Zero,[IntPtr]::Zero)

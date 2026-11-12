@@ -50,7 +50,7 @@ func (a *launcherUI) initVideoControls(cfg Config) {
 		}
 	}
 	a.fps = a.combo(fpsText, fpsStrings, fpsCurrent, 640, 252, 113)
-	note := a.control("STATIC", "Deze opties worden toegepast bij de volgende gamestart.\r\nKies een resolutie die je scherm ondersteunt. Bestaande instelling laat de game kiezen.", 0, 280, 326, 680, 56, 0)
+	note := a.control("STATIC", "Wijzigingen gelden bij de volgende gamestart.\r\nDe launcher maakt eerst een backup van je bestaande videoprofiel.\r\nKies een resolutie die je scherm ondersteunt.", 0, 280, 326, 680, 56, 0)
 	preset := a.control("BUTTON", "VENSTER VOOR SCREENSHOTS", 0x1000B, 280, 400, 400, 48, 114)
 	save := a.control("BUTTON", "VIDEO OPSLAAN", 0x1000B, 280, 472, 320, 48, idSave)
 	hint := a.control("STATIC", "Screenshot-preset: venstermodus op 1280 x 720.\r\nOpslaan en daarna Start Survival om de keuze toe te passen.", 0, 280, 526, 680, 36, 0)
