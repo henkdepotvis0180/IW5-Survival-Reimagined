@@ -1,26 +1,26 @@
 {
   "name": "SurvivalReimagined-Windows-v0.5.1.zip",
-  "sha256": "75022ae4b2a8bdc9fb23f3a53f06b6ce46fb203f1cb88455ca49f8516e2f547f",
+  "sha256": "4fbba792789c0bcc43c59c26e876694276fb9cbe69c7491131596cdb7e25041a",
   "parts": [
     {
       "name": "complete.part001",
-      "sha256": "eb7d5d90f5a20a4c52263bef546fa3657e34cc42f22d7138f9a5ac6b2ff96fdc"
+      "sha256": "59c0fa61965a8c11031674fe148a79d496693d1bcbfa698894c08b0868da81c9"
     },
     {
       "name": "complete.part002",
-      "sha256": "a76bce772bb017f98738768558e3fa6ab6d7524a64c577b1f460ac83aa3545fc"
+      "sha256": "160fbad17d688111a1baf11f35a8b0013a37878a79594b64067fd0e303bcd988"
     },
     {
       "name": "complete.part003",
-      "sha256": "09077cdd26de8392dce2863ed691ca603a998bae86e6f4593851444e1bd822a4"
+      "sha256": "86cffb2d69120d7e4bf190544cdcaf8afa4e0cfee070b8c964d3b20b81bd5184"
     },
     {
       "name": "complete.part004",
-      "sha256": "22c0a2359f9cd2e4da2dfdceb696769091fc1719dafb85070f64bbe7c21bece3"
+      "sha256": "58decebd83bab366cc1c7335a58150693f0b4d2a803332bdd806fff6439185d9"
     },
     {
       "name": "complete.part005",
-      "sha256": "521dce8b91ff5d4e015fb28614dc456677679d830696ff155f967518b56060c2"
+      "sha256": "8201a6ba9e705a59c73f6b43660ebbf140d7495a71e4ed47700888b1b6f77d16"
     }
   ]
 }

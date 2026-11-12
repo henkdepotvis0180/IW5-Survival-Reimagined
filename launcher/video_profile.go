@@ -70,6 +70,9 @@ func patchVideoProfile(original []byte, cfg Config) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	if strings.Contains(text, "/*") {
+		return nil, fmt.Errorf("Videoprofiel bevat blokcommentaar; deze aangepaste opmaak wordt niet automatisch gewijzigd")
+	}
 	values := map[string]string{}
 	order := []string{}
 	for i := 0; i < len(args); i += 3 {
@@ -139,7 +142,7 @@ func prepareVideoProfile(cfg Config, state string) (string, bool, error) {
 		}
 		next, err := patchVideoProfile(data, cfg)
 		if err != nil {
-			return "", false, err
+			return "", false, fmt.Errorf("Videoprofiel %s: %w", path, err)
 		}
 		if bytes.Equal(data, next) {
 			return path, false, nil

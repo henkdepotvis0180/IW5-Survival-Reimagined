@@ -13,6 +13,9 @@ import (
 func TestVideoProfilePreservesOtherSettings(t *testing.T) {
 	before := []byte("// custom profile\r\nseta r_fullscreen \"1\" // display\r\nseta r_mode \"1920x1080\"\r\nseta com_maxfps \"333\"\r\nbind F5 \"+actionslot 5\"\r\nseta name \"Player\"\r\n")
 	cfg := Config{DisplayMode: "windowed", Resolution: "1280x720"}
+	if _, err := patchVideoProfile([]byte("/*\nseta r_fullscreen \"1\"\n*/\n"), cfg); err == nil {
+		t.Fatal("Block comments must not be edited")
+	}
 	got, err := patchVideoProfile(before, cfg)
 	if err != nil {
 		t.Fatal(err)
