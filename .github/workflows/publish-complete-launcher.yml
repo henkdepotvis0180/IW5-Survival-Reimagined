@@ -5,7 +5,7 @@ on:
     paths:
       - .github/workflows/publish-complete-launcher.yml
       - launcher/join_complete.py
-      - downloads/complete-v0.4.3/**
+      - downloads/complete-v0.5.0/**
 permissions:
   contents: write
 jobs:
@@ -13,6 +13,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          sparse-checkout: |
+            launcher
+            downloads/complete-v0.5.0
       - name: Assemble and verify Windows build
         run: python launcher/join_complete.py "$env:RUNNER_TEMP"
       - name: Open launcher, test pages and capture real UI
@@ -20,12 +24,16 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: theme-screenshots
-          path: ${{ runner.temp }}/launcher-v0.4.3-*.png
+          path: ${{ runner.temp }}/launcher-v0.5.0-*.png
   publish:
     needs: windows-smoke
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          sparse-checkout: |
+            launcher
+            downloads/complete-v0.5.0
       - name: Verify and assemble complete package
         run: python3 launcher/join_complete.py "$RUNNER_TEMP"
       - uses: actions/download-artifact@v4
@@ -37,7 +45,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          tag=survival-launcher-v0.4.3
-          gh release create "$tag" --target "$GITHUB_SHA" --draft --prerelease --title "Survival Reimagined Launcher v0.4.3 — scriptprioriteit en testmenu (Operations UI)" --notes "De aangepaste GSC-scripts zitten nu in een prioriteitsarchief, zodat de oorspronkelijke LB_Survival-scripts het testmenu en andere aanpassingen niet overschaduwen. Het menu gebruikt je bestaande actieslot-5-binding; F5 is geen vereiste. Gameplay blijft nog te testen. Een complete ZIP met een donkere military Operations UI, aparte instellingen, tactische illustratie en volledige modresources. Windows-venster, paginawissel en afsluiten worden getest op een Windows-runner; screenshots staan bij deze release. Uitpakken, exe openen, installatiemappen controleren en Start Survival. Vervangen bestanden krijgen backups. Inclusief lb_box_png en preview_mp_dlc. Statisch gecontroleerd en getest; Game-start en gameplay zijn niet op deze runner getest. Geen scannerblokkades omzeilen."
-          gh release upload "$tag" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.4.3.zip" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.4.3.sha256" "$RUNNER_TEMP"/launcher-v0.4.3-*.png
+          tag=survival-launcher-v0.5.0
+          gh release create "$tag" --target "$GITHUB_SHA" --draft --prerelease --title "Survival Reimagined Launcher v0.5.0 — video-opties (Operations UI)" --notes "Nieuw VIDEO-scherm met venstermodus/volledig scherm, resolutie, VSync en FPS-limiet. Screenshot-preset voor 1280x720 in een venster. Standaard worden bestaande video-instellingen behouden. Toepassen bij de volgende gamestart. Echte rendering en gameplay zijn niet getest op de runner. Een complete ZIP met een donkere military Operations UI, aparte instellingen, tactische illustratie en volledige modresources. Windows-venster, paginawissel en afsluiten worden getest op een Windows-runner; screenshots staan bij deze release. Uitpakken, exe openen, installatiemappen controleren en Start Survival. Vervangen bestanden krijgen backups. Inclusief lb_box_png en preview_mp_dlc. Statisch gecontroleerd en getest; Game-start en gameplay zijn niet op deze runner getest. Geen scannerblokkades omzeilen."
+          gh release upload "$tag" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.5.0.zip" "$RUNNER_TEMP/SurvivalReimagined-Windows-v0.5.0.sha256" "$RUNNER_TEMP"/launcher-v0.5.0-*.png
           gh release edit "$tag" --draft=false --prerelease

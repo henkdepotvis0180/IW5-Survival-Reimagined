@@ -14,11 +14,15 @@ import (
 )
 
 type Config struct {
-	PlayerName string `json:"player_name"`
-	GameDir    string `json:"game_directory"`
-	PlutoDir   string `json:"plutonium_directory"`
-	Map        string `json:"map"`
-	TestMenu   bool   `json:"test_menu"`
+	DisplayMode string `json:"display_mode,omitempty"`
+	Resolution  string `json:"resolution,omitempty"`
+	VSync       string `json:"vsync,omitempty"`
+	FPSLimit    int    `json:"fps_limit,omitempty"`
+	PlayerName  string `json:"player_name"`
+	GameDir     string `json:"game_directory"`
+	PlutoDir    string `json:"plutonium_directory"`
+	Map         string `json:"map"`
+	TestMenu    bool   `json:"test_menu"`
 }
 
 func saveConfig(path string, cfg Config) error {
@@ -72,7 +76,12 @@ func launchArgs(cfg Config) ([]string, error) {
 	if cfg.TestMenu {
 		test = "1"
 	}
-	return []string{"iw5mp", cfg.GameDir, "-lan", "+name", name, "+set", "fs_game", "mods/survival", "+set", "survival_test_menu", test, "+load_dsr", "survival", "+map", cfg.Map}, nil
+	video, err := videoArgs(cfg)
+	if err != nil {
+		return nil, err
+	}
+	args := append([]string{"iw5mp", cfg.GameDir, "-lan", "+name", name}, video...)
+	return append(args, "+set", "fs_game", "mods/survival", "+set", "survival_test_menu", test, "+load_dsr", "survival", "+map", cfg.Map), nil
 }
 
 // Reject traversal and symlinked destination paths before touching any files.
@@ -198,4 +207,42 @@ func install(payload []byte, root, backup string) (int, error) {
 		}
 	}
 	return len(pending), nil
+}
+
+func videoArgs(cfg Config) ([]string, error) {
+	args := []string{}
+	switch cfg.DisplayMode {
+	case "":
+	case "windowed":
+		args = append(args, "+set", "r_fullscreen", "0")
+	case "fullscreen":
+		args = append(args, "+set", "r_fullscreen", "1")
+	default:
+		return nil, fmt.Errorf("Ongeldige schermmodus")
+	}
+	if cfg.Resolution != "" {
+		switch cfg.Resolution {
+		case "1280x720", "1366x768", "1600x900", "1920x1080", "2560x1440", "3840x2160":
+			args = append(args, "+set", "r_mode", cfg.Resolution)
+		default:
+			return nil, fmt.Errorf("Kies een resolutie uit de lijst")
+		}
+	}
+	switch cfg.VSync {
+	case "":
+	case "on":
+		args = append(args, "+set", "r_vsync", "1")
+	case "off":
+		args = append(args, "+set", "r_vsync", "0")
+	default:
+		return nil, fmt.Errorf("Ongeldige VSync-optie")
+	}
+	switch cfg.FPSLimit {
+	case 0:
+	case 60, 120, 144, 165, 240:
+		args = append(args, "+set", "com_maxfps", fmt.Sprint(cfg.FPSLimit))
+	default:
+		return nil, fmt.Errorf("Kies een FPS-limiet uit de lijst")
+	}
+	return args, nil
 }

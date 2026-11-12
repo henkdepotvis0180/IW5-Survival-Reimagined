@@ -1,3 +1,22 @@
+# Video-opties v0.5.0
+
+Open VIDEO in de linker navigatie. Kies Venstermodus of Volledig scherm en
+optioneel een resolutie, VSync en FPS-limiet. Standaard blijft alles op Bestaande
+instelling: oude launcherconfiguraties geven geen nieuwe video-overrides mee.
+
+VENSTER VOOR SCREENSHOTS selecteert venstermodus en 1280x720. Klik VIDEO OPSLAAN
+en start daarna Survival. De instellingen gelden bij de volgende gamestart;
+sluit een lopende game eerst af. Je hoeft geen mod te unloaden of handmatig
+configuratiebestanden te bewerken. De launcher schrijft alleen zijn eigen JSON
+instellingen en geeft de keuzes als gecontroleerde startup-dvars door:
+r_fullscreen, r_mode, r_vsync en com_maxfps.
+
+De backendtests controleren defaults, validatie, volgorde vóór het mapcommando
+en het opslaan/herlezen van alle video-opties. De Windows-smoketest opent VIDEO,
+controleert het screenshot-preset en maakt een echte screenshot van het venster.
+De daadwerkelijke MW3-rendering en welke resoluties een monitor ondersteunt zijn
+niet met deze smoketest getest. Kies alleen een passende schermresolutie.
+
 # Testmenu en scriptprioriteit v0.4.3
 
 De project-GSC-scripts worden tevens in zz_survival_reimagined.iwd geplaatst,
@@ -113,13 +132,13 @@ Log: `%LOCALAPPDATA%\SurvivalReimagined\last-launch.log`.
 ## Bouwen en valideren
 
 Vanuit deze map: `python3 build.py`, met Python 3 en Go >= 1.23.
-Dit voert de negen installatietests uit, bouwt de Windows-executable
+Dit voert de tien installatietests uit, bouwt de Windows-executable
  en maakt `dist/SurvivalReimagined-Windows-v0.4.2.zip` met checksums en instructies.
 Geen externe Go-modules. Het programma heeft Windows' GUI-subsystem en gebruikt
 standaard Win32-controls; debug-symbolen worden niet gestript. VCS-buildmetadata
 wordt weggelaten voor reproduceerbare builds tussen schone checkouts.
 
-Gecontroleerd in Linux: negen tests, Windows cross-compilatie, Windows `go vet`,
+Gecontroleerd in Linux: tien tests, Windows cross-compilatie, Windows `go vet`,
 GUI-subsystem en ZIP-integriteit. De release-workflow start de echte executable
 op Windows, controleert de speel- en instellingenpagina en het sluiten van de
 app, en maakt screenshots. Publiceren gebeurt pas na deze Windows-smoketest.

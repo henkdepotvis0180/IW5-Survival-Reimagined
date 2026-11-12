@@ -63,6 +63,10 @@ func line(dc uintptr, x1, y1, x2, y2 int32, color uint32) {
 }
 func (a *launcherUI) showSettings(show bool) {
 	a.settings = show
+	a.video = false
+	for _, h := range a.videoControls {
+		user32.NewProc("ShowWindow").Call(h, 0)
+	}
 	for _, h := range a.settingControls {
 		v := uintptr(0)
 		if show {
@@ -112,14 +116,16 @@ func drawScene(dc uintptr, client rect) {
 	text(dc, "REIMAGINED", rect{24, 108, 220, 132}, colorGreen, theme.small, 0)
 	line(dc, 24, 150, 208, 150, colorLine)
 	text(dc, "COMPLETE EDITION", rect{24, 620, 220, 642}, colorMuted, theme.small, 0)
-	text(dc, "v0.4.3 / WINDOWS", rect{24, 644, 220, 665}, colorMuted, theme.small, 0)
+	text(dc, "v0.5.0 / WINDOWS", rect{24, 644, 220, 665}, colorMuted, theme.small, 0)
 	text(dc, "IW5 / SURVIVAL REIMAGINED", rect{280, 28, 760, 50}, colorMuted, theme.small, 0)
 	text(dc, "LAN / PRIVATE MATCH", rect{760, 28, 980, 50}, colorGreen, theme.small, 2)
 	line(dc, 280, 66, 960, 66, colorLine)
 	if a == nil {
 		return
 	}
-	if a.settings {
+	if a.video {
+		text(dc, "VIDEO-INSTELLINGEN", rect{278, 88, 960, 128}, colorText, theme.subhead, 0)
+	} else if a.settings {
 		text(dc, "INSTELLINGEN", rect{278, 88, 960, 128}, colorText, theme.subhead, 0)
 	} else {
 		fill(dc, rect{260, 96, 980, 424}, colorPanel)
@@ -172,7 +178,7 @@ func drawThemedButton(pointer uintptr) {
 	item := &record
 	r := item.bounds
 	primary := item.id == idStart || item.id == idSave
-	selected := application != nil && ((item.id == idSettings && application.settings) || (item.id == idPlay && !application.settings))
+	selected := application != nil && ((item.id == idSettings && application.settings) || (item.id == idPlay && !application.settings && !application.video) || (item.id == idVideo && application.video))
 	bg, fg := uint32(0x172019), colorText
 	if primary {
 		bg = colorGreen

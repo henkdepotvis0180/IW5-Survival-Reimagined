@@ -76,6 +76,7 @@ const (
 	idLog         = 105
 	idPlay        = 106
 	idSettings    = 107
+	idVideo       = 109
 	wmUpdate      = 0x8001
 )
 
@@ -89,6 +90,9 @@ type launcherUI struct {
 	controls                                             []uintptr
 	playControls, settingControls                        []uintptr
 	settings                                             bool
+	video                                                bool
+	videoControls                                        []uintptr
+	displayMode, resolution, vsync, fps                  uintptr
 	state                                                string
 	busy                                                 bool
 	events                                               chan uiEvent
@@ -107,6 +111,7 @@ func (a *launcherUI) control(class, text string, style uint32, x, y, w, h int32,
 func (a *launcherUI) initControls(cfg Config) {
 	play := a.control("BUTTON", "01   SPELEN", 0x1000B, 24, 180, 184, 48, idPlay)
 	settings := a.control("BUTTON", "02   INSTELLINGEN", 0x1000B, 24, 238, 184, 48, idSettings)
+	videoTab := a.control("BUTTON", "03   VIDEO", 0x1000B, 24, 296, 184, 48, idVideo)
 	a.control("BUTTON", "LOG BEKIJKEN", 0x1000B, 24, 556, 184, 40, idLog)
 	start := a.control("BUTTON", "START SURVIVAL   >", 0x1000B, 280, 456, 440, 64, idStart)
 	a.playControls = []uintptr{start}
@@ -136,6 +141,8 @@ func (a *launcherUI) initControls(cfg Config) {
 	a.settingControls = append(a.settingControls, a.game, a.pluto, a.mapName, a.playerName, a.test, gameBrowse, plutoBrowse, save, hint)
 	a.status = a.control("STATIC", "Gereed om te starten.", 0, 280, 610, 680, 42, 0)
 	a.controls = []uintptr{a.game, a.pluto, a.mapName, a.playerName, a.test, gameBrowse, plutoBrowse, save, start, play, settings}
+	a.initVideoControls(cfg)
+	a.controls = append(a.controls, videoTab)
 	a.showSettings(cfg.GameDir == "")
 }
 
@@ -148,7 +155,7 @@ func windowText(hwnd uintptr) string {
 
 func (a *launcherUI) config() (Config, error) {
 	checked, _, _ := sendMessage.Call(a.test, 0xF0, 0, 0)
-	cfg := Config{GameDir: windowText(a.game), PlutoDir: windowText(a.pluto), Map: windowText(a.mapName), PlayerName: windowText(a.playerName), TestMenu: checked == 1}
+	cfg := Config{GameDir: windowText(a.game), PlutoDir: windowText(a.pluto), Map: windowText(a.mapName), PlayerName: windowText(a.playerName), TestMenu: checked == 1, DisplayMode: comboValue(a.displayMode, displayValues), Resolution: comboValue(a.resolution, resolutionValues), VSync: comboValue(a.vsync, vsyncValues), FPSLimit: fpsValues[comboIndex(a.fps, len(fpsValues))]}
 	if !gameValid(cfg.GameDir) {
 		return cfg, fmt.Errorf("Kies een geldige MW3-map met main/iw_00.iwd en zone/english")
 	}
@@ -178,6 +185,12 @@ func (a *launcherUI) post(event uiEvent) {
 }
 
 func (a *launcherUI) command(id uintptr) {
+	if id == idVideo {
+		if !a.busy {
+			a.showVideo()
+		}
+		return
+	}
 	if id == idPlay || id == idSettings {
 		if !a.busy {
 			a.showSettings(id == idSettings)
@@ -193,6 +206,12 @@ func (a *launcherUI) command(id uintptr) {
 		return
 	}
 	if a.busy {
+		return
+	}
+	if id == 114 {
+		sendMessage.Call(a.displayMode, 0x14E, 1, 0)
+		sendMessage.Call(a.resolution, 0x14E, 1, 0)
+		a.statusText("Screenshot-preset gekozen. Sla op en start de game opnieuw.")
 		return
 	}
 	if id == idGameBrowse || id == idPlutoBrowse {
@@ -286,7 +305,7 @@ func windowProc(hwnd uintptr, msg uint32, wparam, lparam uintptr) uintptr {
 	case 0x2B:
 		drawThemedButton(lparam)
 		return 1
-	case 0x133, 0x135, 0x138:
+	case 0x133, 0x134, 0x135, 0x138:
 		gdi.NewProc("SetTextColor").Call(wparam, uintptr(colorText))
 		gdi.NewProc("SetBkColor").Call(wparam, uintptr(colorPanel))
 		return theme.panelBrush
@@ -372,7 +391,7 @@ func runUI(state string) error {
 	if screenH > 720 {
 		y = (screenH - 720) / 2
 	}
-	hwnd, _, err := user32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.className)), uintptr(unsafe.Pointer(wide("Survival Reimagined Launcher 0.4.3 - testversie"))), 0x02CA0000, x, y, 1040, 720, 0, 0, instance, 0)
+	hwnd, _, err := user32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.className)), uintptr(unsafe.Pointer(wide("Survival Reimagined Launcher 0.5.0 - testversie"))), 0x02CA0000, x, y, 1040, 720, 0, 0, instance, 0)
 	if hwnd == 0 {
 		return fmt.Errorf("Venster openen mislukt: %v", err)
 	}
@@ -434,7 +453,7 @@ func main() {
 	}
 	defer file.Close()
 	log.SetOutput(file)
-	log.Println("Launcher 0.4.3 gestart")
+	log.Println("Launcher 0.5.0 gestart")
 	if err = runUI(state); err != nil {
 		log.Println("FOUT:", err)
 		message(0, err.Error())
